@@ -67,6 +67,7 @@ const Register = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential: response.credential }),
+         credentials: 'include'
       });
       console.log("Fetch request sent to:", `${import.meta.env.VITE_API_URL}/auth/google/token`);
       console.log("Request body:", { credential: response.credential });
