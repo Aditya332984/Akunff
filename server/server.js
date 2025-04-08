@@ -47,7 +47,7 @@ const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024
 // Middleware
 app.use(express.json());
 app.use(cors({ 
-  origin: '*', 
+  origin: process.env.FRONTEND_URL, 
   credentials: true 
 }));
 app.use(cookieParser());
