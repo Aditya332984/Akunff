@@ -1,0 +1,36 @@
+@import "tailwindcss";
+/* index.css or App.css */
+
+/* Webkit-based browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 8px; /* Minimize the width */
+    height: 8px; /* For horizontal scrollbars */
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #1e293b; /* Match your chat background */
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #6366f1, #a855f7); /* Gradient from your theme */
+    border-radius: 10px;
+    border: 2px solid #1e293b; /* Adds a subtle border to blend with track */
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, #a855f7, #6366f1); /* Reverse gradient on hover */
+  }
+  
+  /* Firefox (uses scrollbar-color and scrollbar-width) */
+  html {
+    scrollbar-width: thin; /* Minimize scrollbar */
+    scrollbar-color: #6366f1 #1e293b; /* Thumb color and track color */
+  }
+  
+  /* Ensure the body and html don't show unnecessary scrollbars */
+  html, body {
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    margin: 0;
+    padding: 0;
+  }
