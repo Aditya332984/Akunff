@@ -48,7 +48,9 @@ const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024
 app.use(express.json());
 app.use(cors({ 
   origin: process.env.FRONTEND_URL, 
-  credentials: true 
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(cookieParser());
 app.use(passport.initialize());
