@@ -44,10 +44,44 @@ const fileFilter = (req, file, cb) => {
 };
 const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
 
-// Middleware
+// CORS Configuration
+// Allow both www and non-www versions of your domain
+const allowedOrigins = [
+  'https://akunff.com',
+  'https://www.akunff.com',
+  'http://localhost:5173' // For local development
+];
+
+// Middleware for preflight requests
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
+// Regular middleware setup
 app.use(express.json());
-app.use(cors({ 
-  origin: process.env.FRONTEND_URL, 
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked for origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -81,6 +115,18 @@ passport.use(new GoogleStrategy({
   }
 }));
 
+// Add CORS headers to all responses
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/product', upload.single('image'), productRoutes);
@@ -102,6 +148,19 @@ app.get('/api/auth/user/:id', authMiddleware, async (req, res) => {
 
 // Health Check
 app.get('/', (req, res) => res.send('API is running'));
+
+// CORS Error Handler
+app.use((err, req, res, next) => {
+  if (err.message === 'Not allowed by CORS') {
+    console.error(`CORS error: ${req.headers.origin} trying to access ${req.path}`);
+    return res.status(403).json({ 
+      message: 'CORS error', 
+      error: 'Origin not allowed',
+      allowedOrigins: allowedOrigins 
+    });
+  }
+  next(err);
+});
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
@@ -176,7 +235,7 @@ wss.on('connection', (ws, req) => {
             const recipientInfo = clients.get(client);
             if (
               client.readyState === WebSocket.OPEN &&
-              (recipientInfo.userId ===  parsedMessage.recipient || recipientInfo.userId === clientInfo.userId) &&
+              (recipientInfo.userId === parsedMessage.recipient || recipientInfo.userId === clientInfo.userId) &&
               recipientInfo.productId === productId
             ) {
               client.send(
