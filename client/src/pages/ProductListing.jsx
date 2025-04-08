@@ -99,13 +99,13 @@ const MarketplaceBanner = () => (
 const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   // Generate random rating between 4.0 and 5.0
   const rating = (4 + Math.random()).toFixed(1);
 
   // Debug log for image URL
-  const imageUrl = `${API_URL}${product.image}`;
+  const imageUrl = `${API_URL}/uploads${product.image}`; // Use /uploads directly
   console.log("Image URL for", product.title, ":", imageUrl); // Debug log
 
   return (
@@ -431,9 +431,9 @@ const ProductListing = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-        console.log("Fetching products from:", `${API_URL}/product`); // Debug log
-        const response = await fetch(`${API_URL}/product`);
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+        console.log("Fetching products from:", `${API_URL}/api/product`); // Debug log
+        const response = await fetch(`${API_URL}/api/product`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
@@ -679,7 +679,7 @@ const ProductListing = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
                 <CartSummary cart={cart} />
-              </motion.div>
+              </div>
             )}
 
             <FilterSidebar
