@@ -8,7 +8,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  const [role, setRole] = useState(null); // Add role state
+  const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,19 +20,17 @@ export const AuthProvider = ({ children }) => {
     const googleUser = urlParams.get("user");
 
     if (googleToken && googleUser) {
-      // Handle server-side Google OAuth redirect
       const parsedUser = JSON.parse(decodeURIComponent(googleUser));
       setToken(googleToken);
       setUser(parsedUser);
-      setRole('user'); // Default to user role for Google login
+      setRole("user");
       localStorage.setItem("token", googleToken);
       localStorage.setItem("user", JSON.stringify(parsedUser));
-      localStorage.setItem("role", 'user');
+      localStorage.setItem("role", "user");
       axios.defaults.headers.common["Authorization"] = `Bearer ${googleToken}`;
       toast.success("Successfully logged in with Google!");
       navigate("/products", { replace: true });
     } else {
-      // Load stored auth data
       const storedToken = localStorage.getItem("token");
       const storedUser = localStorage.getItem("user");
       const storedRole = localStorage.getItem("role");
@@ -50,22 +48,22 @@ export const AuthProvider = ({ children }) => {
     try {
       let response;
       if (isGoogle && googleToken) {
-        // Google client-side login: Use provided token
         const storedUser = JSON.parse(localStorage.getItem("user"));
         if (!storedUser) throw new Error("No Google user data found");
         response = { data: { user: storedUser, token: googleToken } };
       } else if (!isGoogle) {
-        // Traditional login or admin login
+        console.log("Sending login request:", { email, password, isAdmin });
         response = await axios.post(
-          `${API_URL}/${isAdmin ? 'admin' : 'auth'}/login`,
-          isAdmin ? { username: email, password } : { email, password }
+          `${API_URL}/${isAdmin ? "admin" : "auth"}/login`,
+          isAdmin ? { username: email, password } : { email, password },
+          { headers: { "Content-Type": "application/json" } } // Explicit headers
         );
       } else {
         throw new Error("Invalid login parameters for Google authentication");
       }
 
       const { user, token } = response.data;
-      const userRole = isAdmin ? 'admin' : 'user';
+      const userRole = isAdmin ? "admin" : "user";
       setUser(user);
       setToken(token);
       setRole(userRole);
@@ -76,6 +74,7 @@ export const AuthProvider = ({ children }) => {
       toast.success(`Successfully logged in as ${userRole}${isGoogle ? " with Google" : ""}!`);
       navigate(isAdmin ? "/admin/dashboard" : "/products");
     } catch (error) {
+      console.error("Login error:", error.response?.data || error.message);
       const message = error.response?.data?.message || error.message || "Login failed";
       toast.error(message);
       throw error;
@@ -86,27 +85,30 @@ export const AuthProvider = ({ children }) => {
     try {
       let response;
       if (isGoogle) {
-        // Google signup: Use existing token and user from localStorage
         const storedToken = localStorage.getItem("token");
         const storedUser = JSON.parse(localStorage.getItem("user"));
         if (!storedToken || !storedUser) throw new Error("No Google authentication data found");
         response = { data: { user: storedUser, token: storedToken } };
       } else {
-        // Traditional signup with name, email, and password
-        response = await axios.post(`${API_URL}/auth/signup`, { name, email, password });
+        response = await axios.post(
+          `${API_URL}/auth/signup`,
+          { name, email, password },
+          { headers: { "Content-Type": "application/json" } }
+        );
       }
 
       const { user, token } = response.data;
       setUser(user);
       setToken(token);
-      setRole('user'); // Default to user role for signup
+      setRole("user");
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("role", 'user');
+      localStorage.setItem("role", "user");
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       toast.success(`Successfully registered${isGoogle ? " with Google" : ""}!`);
       navigate("/products");
     } catch (error) {
+      console.error("Signup error:", error.response?.data || error.message);
       const message = error.response?.data?.message || error.message || "Signup failed";
       toast.error(message);
       throw error;
@@ -116,7 +118,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    setRole(null); // Clear role on logout
+    setRole(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("role");
@@ -133,4 +135,4 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
-export { AuthContext }; // Export AuthContext explicitly
+export { AuthContext };
