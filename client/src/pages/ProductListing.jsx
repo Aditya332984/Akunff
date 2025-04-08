@@ -104,6 +104,10 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
   // Generate random rating between 4.0 and 5.0
   const rating = (4 + Math.random()).toFixed(1);
 
+  // Debug log for image URL
+  const imageUrl = `${API_URL}${product.image}`;
+  console.log("Image URL for", product.title, ":", imageUrl); // Debug log
+
   return (
     <motion.div
       className="bg-gray-800/90 rounded-xl overflow-hidden border border-[#6366f1]/30 shadow-lg relative"
@@ -118,10 +122,11 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
     >
       <div className="relative h-52 overflow-hidden">
         <img
-          src={`${API_URL}${product.image}`}
+          src={imageUrl}
           alt={product.title}
           className="w-full h-full object-cover transition-transform duration-700"
           style={{ transform: isHovered ? "scale(1.1)" : "scale(1)" }}
+          onError={(e) => console.error("Image load error for", product.title, ":", e)} // Debug image load errors
         />
 
         {/* Platform badge */}
