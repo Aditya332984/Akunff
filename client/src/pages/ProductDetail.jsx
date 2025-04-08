@@ -26,13 +26,13 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [wishlist, setWishlist] = useState(false);
   const { user, token } = useAuth();
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        console.log("Fetching product from:", `${API_URL}/product/${id}`); // Debug log
-        const response = await fetch(`${API_URL}/product/${id}`);
+        console.log("Fetching product from:", `${API_URL}/api/product/${id}`); // Debug log
+        const response = await fetch(`${API_URL}/api/product/${id}`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
@@ -49,8 +49,8 @@ const ProductDetail = () => {
 
     const fetchReviews = async () => {
       try {
-        console.log("Fetching reviews from:", `${API_URL}/reviews/${id}`); // Debug log
-        const response = await fetch(`${API_URL}/reviews/${id}`);
+        console.log("Fetching reviews from:", `${API_URL}/api/reviews/${id}`); // Debug log
+        const response = await fetch(`${API_URL}/api/reviews/${id}`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
@@ -75,7 +75,7 @@ const ProductDetail = () => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/reviews`, {
+      const response = await fetch(`${API_URL}/api/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +92,7 @@ const ProductDetail = () => {
       const responseData = await response.json();
       if (response.ok) {
         setNewReview({ text: "", rating: 0 });
-        const updatedReviews = await fetch(`${API_URL}/reviews/${id}`);
+        const updatedReviews = await fetch(`${API_URL}/api/reviews/${id}`);
         const data = await updatedReviews.json();
         setReviews(data);
       } else {
@@ -154,9 +154,9 @@ const ProductDetail = () => {
   }
 
   const productImages = [
-    `${API_URL}${product.image}`,
-    `${API_URL}${product.image}`,
-    `${API_URL}${product.image}`,
+    `${API_URL}/uploads${product.image}`,
+    `${API_URL}/uploads${product.image}`,
+    `${API_URL}/uploads${product.image}`,
   ];
 
   const avgRating = reviews.length
