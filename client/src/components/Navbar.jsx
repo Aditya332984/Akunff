@@ -109,7 +109,7 @@ const Navbar = () => {
             className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-400 to-indigo-600 cursor-pointer"
             onClick={() => handleNavigate('/')}
           >
-            Aknuff
+            Akunff
           </motion.h1>
         </motion.div>
 
