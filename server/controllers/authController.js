@@ -7,7 +7,13 @@ exports.signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
     
-    const existingUser = await User.findOne({ email });
+    // Start by checking if all required fields are provided
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+    
+    // Add timeout to the database operation
+    const existingUser = await User.findOne({ email }).maxTimeMS(5000);
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
@@ -20,17 +26,19 @@ exports.signup = async (req, res) => {
       password: hashedPassword
     });
     
-    await user.save();
+    // Set a timeout for the save operation
+    await user.save({ maxTimeMS: 5000 });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     // Set token in cookies
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 3600000 // 1 hour
     });
 
+    // Send a more concise response
     res.status(201).json({
       user: { id: user._id, name, email },
       token
@@ -40,7 +48,6 @@ exports.signup = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
