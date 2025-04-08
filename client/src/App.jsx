@@ -15,6 +15,7 @@ import ChatsList from './pages/ChatsList';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import Settings from './pages/Setting';
 
 const App = () => {
   return (
@@ -72,6 +73,15 @@ const App = () => {
             element={
               <ProtectedRoute requiredRole="admin">
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+
+              <ProtectedRoute requiredRole="user">
+                <Settings/>
               </ProtectedRoute>
             }
           />
