@@ -1,20 +1,19 @@
-// client/src/pages/ProductSelling.jsx
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const ProductSelling = () => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    price: '',
-    platform: '',
-    genre: '',
-    gameId: '',
+    title: "",
+    description: "",
+    price: "",
+    platform: "",
+    genre: "",
+    gameId: "",
     image: null,
   });
   const [error, setError] = useState(null);
@@ -35,17 +34,15 @@ const ProductSelling = () => {
     e.preventDefault();
     setError(null);
 
-    // Validate user authentication
     if (!user) {
-      setError('You must be logged in to list a product.');
-      navigate('/login');
+      setError("You must be logged in to list a product.");
+      navigate("/login");
       return;
     }
 
-    // Check if the token is expired
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      setError('Authentication token missing. Please log in again.');
+      setError("Authentication token missing. Please log in again.");
       logout();
       return;
     }
@@ -54,20 +51,20 @@ const ProductSelling = () => {
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000;
       if (decoded.exp < currentTime) {
-        setError('Your session has expired. Please log in again.');
+        setError("Your session has expired. Please log in again.");
         logout();
         return;
       }
     } catch (err) {
-      console.error('Token decoding error:', err);
-      setError('Invalid token. Please log in again.');
+      console.error("Token decoding error:", err);
+      setError("Invalid token. Please log in again.");
       logout();
       return;
     }
 
     const form = new FormData();
     Object.keys(formData).forEach((key) => {
-      if (key === 'price') {
+      if (key === "price") {
         form.append(key, parseFloat(formData[key]));
       } else {
         form.append(key, formData[key]);
@@ -75,41 +72,50 @@ const ProductSelling = () => {
     });
 
     try {
-      const response = await fetch('http://localhost:3000/api/product', {
-        method: 'POST',
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api"; // Use environment variable
+      console.log("Submitting product to:", `${API_URL}/product`); // Log URL for debugging
+      const response = await fetch(`${API_URL}/product`, {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: form,
       });
 
+      // Check if response is JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        throw new Error(`Expected JSON, got: ${text.substring(0, 50)}...`);
+      }
+
       const responseData = await response.json();
       if (response.ok) {
-        console.log('Product listed successfully:', responseData);
+        console.log("Product listed successfully:", responseData);
         setFormData({
-          title: '',
-          description: '',
-          price: '',
-          platform: '',
-          genre: '',
-          gameId: '',
+          title: "",
+          description: "",
+          price: "",
+          platform: "",
+          genre: "",
+          gameId: "",
           image: null,
         });
         fileInputRef.current.value = null;
-        alert('Product listed successfully!');
-        navigate('/products');
+        alert("Product listed successfully!");
+        navigate("/products");
       } else {
-        console.error('Failed to list product:', response.status, responseData);
+        console.error("Failed to list product:", response.status, responseData);
         if (response.status === 401 || response.status === 403) {
-          setError('Your session has expired or you are not authorized. Please log in again.');
+          setError("Your session has expired or you are not authorized. Please log in again.");
           logout();
           return;
         }
-        setError(responseData.message || 'Failed to list product');
+        setError(responseData.message || "Failed to list product");
       }
     } catch (error) {
-      console.error('Error submitting product:', error);
-      setError('Error submitting product. Please try again.');
+      console.error("Error submitting product:", error);
+      setError(`Error submitting product: ${error.message}. Please try again.`);
     }
   };
 
