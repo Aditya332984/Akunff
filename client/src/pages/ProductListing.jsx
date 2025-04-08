@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import CartSummary from '../components/CartSummary';
-import { FiFilter, FiStar, FiShoppingCart, FiHeart, FiTrendingUp, FiTag } from 'react-icons/fi';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import CartSummary from "../components/CartSummary";
+import {
+  FiFilter,
+  FiStar,
+  FiShoppingCart,
+  FiHeart,
+  FiTrendingUp,
+  FiTag,
+} from "react-icons/fi";
 
 // Enhanced MarketplaceBanner with animated background elements
 const MarketplaceBanner = () => (
@@ -18,36 +25,37 @@ const MarketplaceBanner = () => (
     <motion.div
       className="absolute inset-0 opacity-30"
       style={{
-        backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.3) 2px, transparent 2px)",
+        backgroundImage:
+          "radial-gradient(circle, rgba(255,255,255,0.3) 2px, transparent 2px)",
         backgroundSize: "30px 30px",
       }}
       animate={{ backgroundPosition: ["0 0", "30px 30px"] }}
       transition={{ duration: 8, repeat: Infinity }}
     />
-    
+
     {/* Floating game icons */}
     {[...Array(6)].map((_, i) => (
       <motion.div
         key={i}
         className="absolute w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm"
-        initial={{ 
-          x: Math.random() * 100 - 50 + '%', 
-          y: Math.random() * 100 - 50 + '%',
-          opacity: 0.3 
+        initial={{
+          x: Math.random() * 100 - 50 + "%",
+          y: Math.random() * 100 - 50 + "%",
+          opacity: 0.3,
         }}
-        animate={{ 
-          y: [0, -20, 0], 
+        animate={{
+          y: [0, -20, 0],
           opacity: [0.3, 0.6, 0.3],
-          rotate: [0, 360]
+          rotate: [0, 360],
         }}
-        transition={{ 
-          duration: 3 + Math.random() * 5, 
+        transition={{
+          duration: 3 + Math.random() * 5,
           repeat: Infinity,
-          delay: i * 0.5
+          delay: i * 0.5,
         }}
       />
     ))}
-    
+
     <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
       <motion.div
         initial={{ opacity: 0, x: -30 }}
@@ -56,12 +64,17 @@ const MarketplaceBanner = () => (
         className="text-center md:text-left"
       >
         <h2 className="text-4xl font-extrabold mb-2">Epic Game Marketplace</h2>
-        <p className="text-lg opacity-90 max-w-md">Your premier destination for digital treasures and gaming adventures</p>
+        <p className="text-lg opacity-90 max-w-md">
+          Your premier destination for digital treasures and gaming adventures
+        </p>
       </motion.div>
       <div className="flex gap-4">
         <motion.button
           className="px-6 py-3 bg-white text-[#6366f1] rounded-full font-bold shadow-lg flex items-center"
-          whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(255,255,255,0.5)" }}
+          whileHover={{
+            scale: 1.05,
+            boxShadow: "0 0 15px rgba(255,255,255,0.5)",
+          }}
           whileTap={{ scale: 0.95 }}
         >
           <FiTrendingUp className="mr-2" />
@@ -69,7 +82,10 @@ const MarketplaceBanner = () => (
         </motion.button>
         <motion.button
           className="px-6 py-3 bg-[#a855f7]/20 border border-white/40 text-white rounded-full font-bold shadow-lg backdrop-blur-sm"
-          whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(168,85,247,0.5)" }}
+          whileHover={{
+            scale: 1.05,
+            boxShadow: "0 0 15px rgba(168,85,247,0.5)",
+          }}
           whileTap={{ scale: 0.95 }}
         >
           Browse All
@@ -79,10 +95,11 @@ const MarketplaceBanner = () => (
   </motion.div>
 );
 
-// Enhanced GameCard component with more dynamic animations and better UI
+// Enhanced GameCard component with dynamic image URL
 const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
   // Generate random rating between 4.0 and 5.0
   const rating = (4 + Math.random()).toFixed(1);
@@ -90,10 +107,10 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
   return (
     <motion.div
       className="bg-gray-800/90 rounded-xl overflow-hidden border border-[#6366f1]/30 shadow-lg relative"
-      whileHover={{ 
-        scale: 1.03, 
+      whileHover={{
+        scale: 1.03,
         boxShadow: "0 0 20px rgba(99,102,241,0.3)",
-        y: -5
+        y: -5,
       }}
       transition={{ duration: 0.3 }}
       onHoverStart={() => setIsHovered(true)}
@@ -101,17 +118,17 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
     >
       <div className="relative h-52 overflow-hidden">
         <img
-          src={`http://localhost:3000${product.image}`}
+          src={`${API_URL}${product.image}`}
           alt={product.title}
           className="w-full h-full object-cover transition-transform duration-700"
-          style={{ transform: isHovered ? 'scale(1.1)' : 'scale(1)' }}
+          style={{ transform: isHovered ? "scale(1.1)" : "scale(1)" }}
         />
-        
+
         {/* Platform badge */}
         <div className="absolute top-2 right-2 bg-[#6366f1]/90 text-white px-2 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
           {product.platform}
         </div>
-        
+
         {/* Like button */}
         <motion.button
           className="absolute top-2 left-2 w-8 h-8 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-full text-white"
@@ -124,7 +141,7 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
         >
           <FiHeart />
         </motion.button>
-        
+
         {/* Quick add to cart overlay */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end justify-center pb-4 px-3"
@@ -145,25 +162,36 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
           </motion.button>
         </motion.div>
       </div>
-      
+
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-bold text-white truncate flex-1">{product.title}</h3>
+          <h3 className="text-lg font-bold text-white truncate flex-1">
+            {product.title}
+          </h3>
           <span className="flex items-center text-yellow-400 text-sm font-medium ml-2">
             <FiStar className="mr-1" /> {rating}
           </span>
         </div>
-        
-        <p className="text-sm text-gray-400 line-clamp-2 h-10">{product.description}</p>
-        
+
+        <p className="text-sm text-gray-400 line-clamp-2 h-10">
+          {product.description}
+        </p>
+
         <div className="mt-3 flex justify-between items-center">
-          <span className="text-xl font-bold text-[#a855f7]">${product.price}</span>
-          <span className="text-xs py-1 px-2 bg-gray-700/70 rounded-full text-gray-300">{product.genre}</span>
+          <span className="text-xl font-bold text-[#a855f7]">
+            ${product.price}
+          </span>
+          <span className="text-xs py-1 px-2 bg-gray-700/70 rounded-full text-gray-300">
+            {product.genre}
+          </span>
         </div>
-        
+
         <motion.button
           className="w-full mt-4 py-2.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-lg font-semibold shadow-lg shadow-purple-900/20"
-          whileHover={{ scale: 1.03, boxShadow: "0 5px 15px rgba(168,85,247,0.4)" }}
+          whileHover={{
+            scale: 1.03,
+            boxShadow: "0 5px 15px rgba(168,85,247,0.4)",
+          }}
           whileTap={{ scale: 0.97 }}
           onClick={() => navigate(`/product/${product._id}`)}
         >
@@ -179,31 +207,34 @@ const FilterSidebar = ({ categories, platforms, onFilter }) => {
   const [priceRange, setPriceRange] = useState([0, 100]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState([]);
-  
+
   const handleCategoryToggle = (category) => {
     if (selectedCategories.includes(category)) {
-      setSelectedCategories(selectedCategories.filter(c => c !== category));
+      setSelectedCategories(
+        selectedCategories.filter((c) => c !== category)
+      );
     } else {
       setSelectedCategories([...selectedCategories, category]);
     }
   };
-  
+
   const handlePlatformToggle = (platform) => {
     if (selectedPlatforms.includes(platform)) {
-      setSelectedPlatforms(selectedPlatforms.filter(p => p !== platform));
+      setSelectedPlatforms(selectedPlatforms.filter((p) => p !== platform));
     } else {
       setSelectedPlatforms([...selectedPlatforms, platform]);
     }
   };
-  
+
   useEffect(() => {
-    onFilter && onFilter({
-      priceRange,
-      categories: selectedCategories,
-      platforms: selectedPlatforms
-    });
+    onFilter &&
+      onFilter({
+        priceRange,
+        categories: selectedCategories,
+        platforms: selectedPlatforms,
+      });
   }, [priceRange, selectedCategories, selectedPlatforms, onFilter]);
-  
+
   return (
     <motion.div
       className="bg-gray-900/90 rounded-2xl p-6 border border-[#6366f1]/30 shadow-xl sticky top-24"
@@ -212,12 +243,12 @@ const FilterSidebar = ({ categories, platforms, onFilter }) => {
       transition={{ duration: 0.6, delay: 0.3 }}
     >
       <h3 className="text-xl font-bold mb-6 flex items-center">
-        <FiFilter className="mr-2 text-[#a855f7]" /> 
+        <FiFilter className="mr-2 text-[#a855f7]" />
         <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent">
           Filters
         </span>
       </h3>
-      
+
       {/* Price Range */}
       <div className="mb-6">
         <h4 className="text-sm text-gray-400 mb-3">Price Range</h4>
@@ -230,11 +261,13 @@ const FilterSidebar = ({ categories, platforms, onFilter }) => {
           min="0"
           max="100"
           value={priceRange[1]}
-          onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+          onChange={(e) =>
+            setPriceRange([priceRange[0], parseInt(e.target.value)])
+          }
           className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#a855f7]"
         />
       </div>
-      
+
       {/* Categories */}
       <div className="mb-6">
         <h4 className="text-sm text-gray-400 mb-3">Categories</h4>
@@ -248,14 +281,17 @@ const FilterSidebar = ({ categories, platforms, onFilter }) => {
                 onChange={() => handleCategoryToggle(category)}
                 className="w-4 h-4 accent-[#a855f7] bg-gray-700 border-gray-600 rounded focus:ring-[#6366f1]"
               />
-              <label htmlFor={`category-${index}`} className="ml-2 text-sm font-medium text-gray-300">
+              <label
+                htmlFor={`category-${index}`}
+                className="ml-2 text-sm font-medium text-gray-300"
+              >
                 {category}
               </label>
             </div>
           ))}
         </div>
       </div>
-      
+
       {/* Platforms */}
       <div className="mb-6">
         <h4 className="text-sm text-gray-400 mb-3">Platforms</h4>
@@ -265,8 +301,8 @@ const FilterSidebar = ({ categories, platforms, onFilter }) => {
               key={index}
               className={`px-3 py-1 text-xs rounded-full ${
                 selectedPlatforms.includes(platform)
-                  ? 'bg-[#6366f1] text-white'
-                  : 'bg-gray-800 text-gray-400 border border-gray-700'
+                  ? "bg-[#6366f1] text-white"
+                  : "bg-gray-800 text-gray-400 border border-gray-700"
               }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -277,18 +313,18 @@ const FilterSidebar = ({ categories, platforms, onFilter }) => {
           ))}
         </div>
       </div>
-      
+
       {/* Recommended Games - Using the right side efficiently */}
       <div className="mt-8">
         <h3 className="text-md font-bold mb-4 flex items-center">
-          <FiStar className="mr-2 text-yellow-400" /> 
+          <FiStar className="mr-2 text-yellow-400" />
           <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
             Recommended Games
           </span>
         </h3>
         <div className="space-y-3">
-          {[1, 2, 3].map(i => (
-            <motion.div 
+          {[1, 2, 3].map((i) => (
+            <motion.div
               key={i}
               className="flex gap-3 p-2 rounded-lg hover:bg-gray-800/70 cursor-pointer"
               whileHover={{ x: 3 }}
@@ -297,20 +333,24 @@ const FilterSidebar = ({ categories, platforms, onFilter }) => {
                 <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600"></div>
               </div>
               <div className="flex-1">
-                <h5 className="text-sm font-medium text-white">Featured Game {i}</h5>
+                <h5 className="text-sm font-medium text-white">
+                  Featured Game {i}
+                </h5>
                 <div className="flex items-center mt-1">
                   <span className="text-xs text-yellow-400 flex items-center">
-                    <FiStar className="mr-1" size={10} /> 4.{8+i}
+                    <FiStar className="mr-1" size={10} /> 4.{8 + i}
                   </span>
                   <span className="mx-2 text-gray-600">•</span>
-                  <span className="text-xs text-[#a855f7] font-medium">${19+i*5}.99</span>
+                  <span className="text-xs text-[#a855f7] font-medium">
+                    ${19 + i * 5}.99
+                  </span>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
       </div>
-      
+
       {/* Reset Filters button */}
       <motion.button
         className="w-full mt-6 py-2 border border-[#6366f1]/50 text-[#6366f1] rounded-lg font-medium"
@@ -342,12 +382,16 @@ const PromoSection = () => (
           Special Gaming Bundles
         </h3>
         <p className="text-gray-400 text-sm max-w-lg">
-          Get exclusive bundles with up to 70% off! Limited time offers on premium game collections.
+          Get exclusive bundles with up to 70% off! Limited time offers on
+          premium game collections.
         </p>
       </div>
       <motion.button
         className="px-6 py-2.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-full font-bold shadow-lg flex items-center"
-        whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(99,102,241,0.5)" }}
+        whileHover={{
+          scale: 1.05,
+          boxShadow: "0 0 15px rgba(99,102,241,0.5)",
+        }}
         whileTap={{ scale: 0.95 }}
       >
         <FiTag className="mr-2" />
@@ -362,26 +406,40 @@ const ProductListing = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
 
   // Sample categories and platforms for filters
-  const categories = ["Action", "Adventure", "RPG", "Strategy", "Simulation", "Sports"];
+  const categories = [
+    "Action",
+    "Adventure",
+    "RPG",
+    "Strategy",
+    "Simulation",
+    "Sports",
+  ];
   const platforms = ["PC", "PlayStation", "Xbox", "Switch", "Mobile"];
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/product');
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+        console.log("Fetching products from:", `${API_URL}/product`); // Debug log
+        const response = await fetch(`${API_URL}/product`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Response is not JSON");
+        }
         const data = await response.json();
         setProducts(data);
         setFilteredProducts(data);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error("Error fetching products:", error);
         setLoading(false);
       }
     };
@@ -420,7 +478,7 @@ const ProductListing = () => {
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >
-          <motion.div 
+          <motion.div
             className="w-16 h-16 border-4 border-t-[#6366f1] border-r-[#a855f7] border-b-[#6366f1] border-l-[#a855f7] rounded-full"
             animate={{ rotate: 360 }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
@@ -438,13 +496,14 @@ const ProductListing = () => {
       <motion.div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(circle at center, rgba(99,102,241,0.3), transparent 70%)",
+          background:
+            "radial-gradient(circle at center, rgba(99,102,241,0.3), transparent 70%)",
           opacity: 0.4,
         }}
         animate={{ opacity: [0.3, 0.5, 0.3] }}
         transition={{ duration: 5, repeat: Infinity }}
       />
-      
+
       {/* Animated particles in background */}
       {[...Array(20)].map((_, i) => (
         <motion.div
@@ -466,7 +525,7 @@ const ProductListing = () => {
           }}
         />
       ))}
-      
+
       <Navbar />
       <MarketplaceBanner />
 
@@ -491,9 +550,12 @@ const ProductListing = () => {
             </div>
             <div className="flex gap-4">
               <motion.button
-                onClick={() => navigate('/sell')}
+                onClick={() => navigate("/sell")}
                 className="px-6 py-3 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-full font-bold shadow-lg flex items-center"
-                whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(99,102,241,0.7)" }}
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 0 20px rgba(99,102,241,0.7)",
+                }}
                 whileTap={{ scale: 0.95 }}
               >
                 <FiTag className="mr-2" />
@@ -501,7 +563,10 @@ const ProductListing = () => {
               </motion.button>
               <motion.button
                 className="px-6 py-3 bg-gray-800/80 border border-[#6366f1]/30 rounded-full font-bold shadow-lg flex items-center"
-                whileHover={{ scale: 1.05, boxShadow: "0 0 10px rgba(99,102,241,0.3)" }}
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 0 10px rgba(99,102,241,0.3)",
+                }}
                 whileTap={{ scale: 0.95 }}
               >
                 <FiHeart className="mr-2" />
@@ -533,13 +598,13 @@ const ProductListing = () => {
                   <option>Most Popular</option>
                 </select>
               </div>
-              
+
               {filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                   {filteredProducts.map((product) => (
-                    <GameCard 
-                      key={product._id} 
-                      product={product} 
+                    <GameCard
+                      key={product._id}
+                      product={product}
                       onAddToCart={handleAddToCart}
                       onAddToWishlist={handleAddToWishlist}
                     />
@@ -554,33 +619,40 @@ const ProductListing = () => {
                   <div className="inline-block bg-gray-800/80 p-6 rounded-full mb-4">
                     <FiFilter className="w-12 h-12 text-gray-500" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-300 mb-2">No Products Found</h3>
+                  <h3 className="text-xl font-bold text-gray-300 mb-2">
+                    No Products Found
+                  </h3>
                   <p className="text-gray-400 max-w-md mx-auto">
-                    We couldn't find any items matching your search. Try adjusting your filters or search term!
+                    We couldn't find any items matching your search. Try
+                    adjusting your filters or search term!
                   </p>
                   <motion.button
                     className="mt-6 px-6 py-2 bg-[#6366f1]/20 border border-[#6366f1]/50 rounded-full text-[#6366f1] font-medium"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setSearchTerm('')}
+                    onClick={() => setSearchTerm("")}
                   >
                     Clear Search
                   </motion.button>
                 </motion.div>
               )}
-              
+
               {filteredProducts.length > 0 && (
                 <div className="flex justify-center mt-10">
                   <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map(page => (
+                    {[1, 2, 3, 4, 5].map((page) => (
                       <motion.button
                         key={page}
                         className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                          page === 1 
-                            ? 'bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white' 
-                            : 'bg-gray-800 text-gray-400'
+                          page === 1
+                            ? "bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white"
+                            : "bg-gray-800 text-gray-400"
                         }`}
-                        whileHover={{ scale: 1.1, backgroundColor: page !== 1 ? "rgba(99,102,241,0.2)" : undefined }}
+                        whileHover={{
+                          scale: 1.1,
+                          backgroundColor:
+                            page !== 1 ? "rgba(99,102,241,0.2)" : undefined,
+                        }}
                         whileTap={{ scale: 0.9 }}
                       >
                         {page}
@@ -591,7 +663,7 @@ const ProductListing = () => {
               )}
             </div>
           </motion.div>
-          
+
           {/* Right Sidebar - Fixing the empty space */}
           <div className="lg:w-1/4">
             {user && (
@@ -604,9 +676,9 @@ const ProductListing = () => {
                 <CartSummary cart={cart} />
               </motion.div>
             )}
-            
-            <FilterSidebar 
-              categories={categories} 
+
+            <FilterSidebar
+              categories={categories}
               platforms={platforms}
               onFilter={handleFilter}
             />
