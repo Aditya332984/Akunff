@@ -99,14 +99,10 @@ const MarketplaceBanner = () => (
 const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
   // Generate random rating between 4.0 and 5.0
   const rating = (4 + Math.random()).toFixed(1);
-
-  // Debug log for image URL
-  const imageUrl = `${API_URL}/uploads${product.image}`; // Use /uploads directly
-  console.log("Image URL for", product.title, ":", imageUrl); // Debug log
 
   return (
     <motion.div
@@ -122,11 +118,10 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
     >
       <div className="relative h-52 overflow-hidden">
         <img
-          src={imageUrl}
+          src={`${API_URL}${product.image}`}
           alt={product.title}
           className="w-full h-full object-cover transition-transform duration-700"
           style={{ transform: isHovered ? "scale(1.1)" : "scale(1)" }}
-          onError={(e) => console.error("Image load error for", product.title, ":", e)} // Debug image load errors
         />
 
         {/* Platform badge */}
@@ -431,9 +426,9 @@ const ProductListing = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-        console.log("Fetching products from:", `${API_URL}/api/product`); // Debug log
-        const response = await fetch(`${API_URL}/api/product`);
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+        console.log("Fetching products from:", `${API_URL}/product`); // Debug log
+        const response = await fetch(`${API_URL}/product`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
@@ -679,7 +674,7 @@ const ProductListing = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
                 <CartSummary cart={cart} />
-              </div>
+              </motion.div>
             )}
 
             <FilterSidebar
