@@ -1,4 +1,3 @@
-// client/src/pages/Login.jsx
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader2 } from "lucide-react";
@@ -50,6 +49,7 @@ const Login = () => {
       return;
     }
     setIsLoading(true);
+    console.log("Login attempt:", { email, password }); // Log payload
     try {
       await login(email, password);
     } catch (error) {
@@ -67,15 +67,15 @@ const Login = () => {
     try {
       const url = `${import.meta.env.VITE_API_URL}/auth/google/token`;
       console.log("Fetching from:", url);
-      const res = await fetch(url, {  // Line 70
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential: response.credential }),
         credentials: "include",
       });
       const data = await res.json();
-      console.log("Full response object:", res);  // Line 75
-      console.log("Response data:", data);        // Line 77
+      console.log("Full response object:", res);
+      console.log("Response data:", data);
       if (res.ok) {
         const { token, user } = data;
         localStorage.setItem("token", token);
