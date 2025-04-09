@@ -99,7 +99,7 @@ const MarketplaceBanner = () => (
 const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+  const API_BASE_URL = 'http://localhost:3000'; // Base URL for static files
 
   // Generate random rating between 4.0 and 5.0
   const rating = (4 + Math.random()).toFixed(1);
@@ -118,7 +118,7 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
     >
       <div className="relative h-52 overflow-hidden">
         <img
-          src={`${API_URL}${product.image}`}
+          src={`${API_BASE_URL}${product.image}`}
           alt={product.title}
           className="w-full h-full object-cover transition-transform duration-700"
           style={{ transform: isHovered ? "scale(1.1)" : "scale(1)" }}
