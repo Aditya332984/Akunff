@@ -32,7 +32,7 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         console.log("Fetching product from:", `${API_URL}/product/${id}`); // Debug log
-        const response = await fetch(`${API_URL}/api/product/${id}`);
+        const response = await fetch(`${API_URL}/product/${id}`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
@@ -75,7 +75,7 @@ const ProductDetail = () => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/reviews`, {
+      const response = await fetch(`${API_URL}/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +92,7 @@ const ProductDetail = () => {
       const responseData = await response.json();
       if (response.ok) {
         setNewReview({ text: "", rating: 0 });
-        const updatedReviews = await fetch(`${API_URL}/api/reviews/${id}`);
+        const updatedReviews = await fetch(`${API_URL}/reviews/${id}`);
         const data = await updatedReviews.json();
         setReviews(data);
       } else {
