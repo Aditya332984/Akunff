@@ -49,7 +49,7 @@ const ProductDetail = () => {
 
     const fetchReviews = async () => {
       try {
-        console.log("Fetching reviews from:", `${API_URL}/api/reviews/${id}`); // Debug log
+        console.log("Fetching reviews from:", `${API_URL}/reviews/${id}`); // Debug log
         const response = await fetch(`${API_URL}/api/reviews/${id}`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get("content-type");
