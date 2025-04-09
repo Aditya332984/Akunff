@@ -30,45 +30,63 @@ router.get(
 
 // Google Token Verification Endpoint (for client-side auth)
 router.post('/google/token', asyncHandler(async (req, res) => {
-  const { token } = req.body;
+  const { profile } = req.body;
 
-  if (!token) {
-    return res.status(400).json({ success: false, message: 'No token provided' });
+  // Basic validation
+  if (!profile || !profile.sub) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Invalid Google profile received' 
+    });
   }
 
-  try {
-    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-    const ticket = await client.verifyIdToken({
-      idToken: token, // Assuming the client sends an ID token instead of access_token
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
+  // Check if user already exists by Google ID
+  let user = await User.findOne({ googleId: profile.sub });
 
-    let user = await User.findOne({ googleId: payload.sub });
-    if (!user) {
-      user = new User({
-        googleId: payload.sub,
-        email: payload.email,
-        name: payload.name,
-      });
+  if (!user) {
+    // Create new user
+    user = new User({
+      googleId: profile.sub,
+      email: profile.email,
+      password: null, // since it's a Google login
+    });
+    await user.save();
+    console.log('New Google user created:', user);
+  } else {
+    // Optionally update profile info
+    if (user.name !== profile.name || user.email !== profile.email) {
+      user.name = profile.name;
+      user.email = profile.email;
       await user.save();
+      console.log('Google user updated:', user);
     }
-
-    const jwtToken = jwt.sign(
-      { id: user._id, googleId: user.googleId },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-
-    res.json({
-      success: true,
-      token: jwtToken,
-      user: { id: user._id, email: user.email, googleId: user.googleId },
-    });
-  } catch (error) {
-    console.error("Token verification error:", error);
-    return res.status(400).json({ success: false, message: 'Invalid Google token' });
   }
+
+  // Generate JWT token
+  const jwtToken = jwt.sign(
+    { id: user._id, googleId: user.googleId },
+    process.env.JWT_SECRET,
+    { expiresIn: '1h' }
+  );
+
+  // Set cookie if needed (optional)
+  res.cookie('jwt', jwtToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 3600000
+  });
+
+  // Send response back
+  res.json({
+    success: true,
+    token: jwtToken,
+    user: {
+      id: user._id,
+      email: user.email,
+      googleId: user.googleId
+    }
+  });
 }));
 
 
