@@ -31,7 +31,7 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        console.log("Fetching product from:", `${API_URL}/api/product/${id}`); // Debug log
+        console.log("Fetching product from:", `${API_URL}/product/${id}`); // Debug log
         const response = await fetch(`${API_URL}/api/product/${id}`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get("content-type");
