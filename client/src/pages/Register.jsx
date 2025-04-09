@@ -59,29 +59,49 @@ const Register = () => {
     }
   };
 
+  
   const handleGoogleSuccess = async (response) => {
     setIsLoading(true);
     try {
-      console.log("Google response received:", response);
+      const googleAccessToken = response.access_token;
+  
+      // 1. Fetch user profile using access_token
+      const profileRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: {
+          Authorization: `Bearer ${googleAccessToken}`,
+        },
+      });
+  
+      if (!profileRes.ok) {
+        throw new Error("Failed to fetch Google profile");
+      }
+  
+      const profile = await profileRes.json();
+      console.log("Google profile:", profile);
+  
+      // 2. Send profile to backend
       const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/google/token`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential: response.credential }),
-         credentials: 'include'
+        body: JSON.stringify({ profile }),
       });
-      console.log("Fetch request sent to:", `${import.meta.env.VITE_API_URL}/auth/google/token`);
-      console.log("Request body:", { credential: response.credential });
+  
+      console.log("Request sent to backend with profile:", profile);
       console.log("Response status:", res.status);
+  
       const data = await res.json();
+  
+      // 3. Handle response
       if (res.ok) {
         const { token, user } = data;
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
-        await signup(user.name, user.email, "", true); // Call signup with isGoogle=true
+        await signup(user.name, user.email, "", true); // Optional depending on your logic
         toast.success("Successfully registered with Google!");
       } else {
         toast.error(data.message || "Google registration failed");
       }
+  
     } catch (error) {
       toast.error("Error during Google registration");
       console.error("Google registration error:", error);
@@ -89,6 +109,7 @@ const Register = () => {
       setIsLoading(false);
     }
   };
+  
 
   const handleGoogleFailure = (error) => {
     toast.error("Google Sign-In failed");
@@ -99,6 +120,8 @@ const Register = () => {
     onSuccess: handleGoogleSuccess,
     onError: handleGoogleFailure,
     flow: "implicit",
+    scope: "openid email profile",
+
   });
 
   return (

@@ -19,22 +19,38 @@ const Login = () => {
 
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8, ease: "easeOut" },
+    },
   };
 
   const formVariants = {
     hidden: { opacity: 0, scale: 0.95 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.5, staggerChildren: 0.1 } },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.5, staggerChildren: 0.1 },
+    },
   };
 
   const inputVariants = {
     hidden: { opacity: 0, x: -20 },
     visible: { opacity: 1, x: 0 },
-    focus: { scale: 1.02, boxShadow: "0 0 15px rgba(99, 102, 241, 0.5)", borderColor: "#a855f7" },
+    focus: {
+      scale: 1.02,
+      boxShadow: "0 0 15px rgba(99, 102, 241, 0.5)",
+      borderColor: "#a855f7",
+    },
   };
 
   const buttonVariants = {
-    hover: { scale: 1.05, boxShadow: "0 0 20px rgba(99, 102, 241, 0.7)", transition: { type: "spring", stiffness: 300 } },
+    hover: {
+      scale: 1.05,
+      boxShadow: "0 0 20px rgba(99, 102, 241, 0.7)",
+      transition: { type: "spring", stiffness: 300 },
+    },
     tap: { scale: 0.95 },
   };
 
@@ -54,7 +70,8 @@ const Login = () => {
       await login(email, password);
     } catch (error) {
       if (error.response?.status === 400) toast.error("Invalid credentials");
-      else if (error.response?.status === 500) toast.error("Server error, please try again later");
+      else if (error.response?.status === 500)
+        toast.error("Server error, please try again later");
       else toast.error(error.response?.data?.message || "Login failed");
       console.error("Login error:", error);
     } finally {
@@ -70,7 +87,7 @@ const Login = () => {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential: response.credential }),
+        body: JSON.stringify({ token: response.access_token }),
         credentials: "include",
       });
       const data = await res.json();
@@ -78,9 +95,13 @@ const Login = () => {
       console.log("Response data:", data);
       if (res.ok) {
         const { token, user } = data;
+        setToken(token);
+        setUser(user);
+        setRole("user");
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
-        await login(user.email, null, true, token);
+        localStorage.setItem("role", "user");
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         toast.success("Successfully logged in with Google!");
         navigate("/products");
       } else {
@@ -103,12 +124,27 @@ const Login = () => {
     onSuccess: handleGoogleSuccess,
     onError: handleGoogleFailure,
     flow: "implicit",
+    scope: "openid email profile",
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f172a] overflow-hidden relative" style={{ background: "linear-gradient(180deg, #0f172a 0%, #050417 100%)" }}>
+    <div
+      className="min-h-screen flex items-center justify-center bg-[#0f172a] overflow-hidden relative"
+      style={{
+        background: "linear-gradient(180deg, #0f172a 0%, #050417 100%)",
+      }}
+    >
       <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <motion.div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle, #6366f1 1px, transparent 1px)", backgroundSize: "30px 30px" }} animate={{ opacity: [0.1, 0.3, 0.1] }} transition={{ duration: 5, repeat: Infinity, repeatType: "reverse" }} />
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, #6366f1 1px, transparent 1px)",
+            backgroundSize: "30px 30px",
+          }}
+          animate={{ opacity: [0.1, 0.3, 0.1] }}
+          transition={{ duration: 5, repeat: Infinity, repeatType: "reverse" }}
+        />
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={`hex-login-${i}`}
@@ -120,24 +156,55 @@ const Login = () => {
               height: `${20 + Math.random() * 30}px`,
               opacity: 0.1 + Math.random() * 0.2,
               background: i % 2 === 0 ? "#6366f1" : "#a855f7",
-              clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+              clipPath:
+                "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
             }}
-            animate={{ opacity: [0.1 + Math.random() * 0.2, 0.3 + Math.random() * 0.2, 0.1 + Math.random() * 0.2] }}
-            transition={{ duration: 3 + Math.random() * 4, repeat: Infinity, repeatType: "reverse", ease: "easeInOut", delay: Math.random() * 2 }}
+            animate={{
+              opacity: [
+                0.1 + Math.random() * 0.2,
+                0.3 + Math.random() * 0.2,
+                0.1 + Math.random() * 0.2,
+              ],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 4,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+              delay: Math.random() * 2,
+            }}
           />
         ))}
       </div>
 
-      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="relative z-10 w-full max-w-md p-8 bg-gray-900/80 rounded-xl shadow-2xl border border-[#6366f1]/30">
-        <motion.h2 className="text-3xl font-extrabold mb-6 text-center bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent" style={{ textShadow: "0 0 15px rgba(99, 102, 241, 0.5)" }}>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="relative z-10 w-full max-w-md p-8 bg-gray-900/80 rounded-xl shadow-2xl border border-[#6366f1]/30"
+      >
+        <motion.h2
+          className="text-3xl font-extrabold mb-6 text-center bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent"
+          style={{ textShadow: "0 0 15px rgba(99, 102, 241, 0.5)" }}
+        >
           Welcome to Aknuff
         </motion.h2>
 
-        <motion.form variants={formVariants} initial="hidden" animate="visible" onSubmit={handleSubmit} className="space-y-6">
+        <motion.form
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
+          onSubmit={handleSubmit}
+          className="space-y-6"
+        >
           <motion.div variants={inputVariants}>
-            <label htmlFor="email" className="block text-gray-300 mb-2">Email</label>
+            <label htmlFor="email" className="block text-gray-300 mb-2">
+              Email
+            </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3"><Mail className="h-5 w-5 text-[#6366f1]" /></span>
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <Mail className="h-5 w-5 text-[#6366f1]" />
+              </span>
               <motion.input
                 type="email"
                 id="email"
@@ -153,9 +220,13 @@ const Login = () => {
           </motion.div>
 
           <motion.div variants={inputVariants}>
-            <label htmlFor="password" className="block text-gray-300 mb-2">Password</label>
+            <label htmlFor="password" className="block text-gray-300 mb-2">
+              Password
+            </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3"><Lock className="h-5 w-5 text-[#6366f1]" /></span>
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <Lock className="h-5 w-5 text-[#6366f1]" />
+              </span>
               <motion.input
                 type="password"
                 id="password"
@@ -179,13 +250,26 @@ const Login = () => {
             className="w-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white font-bold py-3 rounded-lg flex items-center justify-center space-x-2 disabled:opacity-50"
             style={{ boxShadow: "0 0 15px rgba(99, 102, 241, 0.3)" }}
           >
-            {isLoading ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Logging in...</span></> : <span>Login</span>}
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Logging in...</span>
+              </>
+            ) : (
+              <span>Login</span>
+            )}
           </motion.button>
         </motion.form>
 
         <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#6366f1]/30"></div></div>
-          <div className="relative flex justify-center text-sm"><span className="bg-gray-900/80 px-2 text-gray-400">Or continue with</span></div>
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-[#6366f1]/30"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-gray-900/80 px-2 text-gray-400">
+              Or continue with
+            </span>
+          </div>
         </div>
 
         <motion.button
@@ -198,11 +282,17 @@ const Login = () => {
           style={{ boxShadow: "0 0 15px rgba(99, 102, 241, 0.3)" }}
         >
           {isLoading ? (
-            <><Loader2 className="w-5 h-5 animate-spin" /><span>Signing in...</span></>
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Signing in...</span>
+            </>
           ) : (
             <>
               <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M12.545,10.239v3.621h5.739c-0.231,1.239-0.924,2.316-1.947,3.093c-1.239,0.947-2.853,1.447-4.792,1.447 c-2.969,0-5.493-1.947-6.417-4.693c-0.231-0.693-0.347-1.416-0.347-2.139s0.116-1.447,0.347-2.139 c0.924-2.747,3.447-4.693,6.417-4.693c1.616,0,3.078,0.578,4.239,1.693l2.853-2.853C16.834,3.078,14.763,2,12.545,2 C7.021,2,2.543,6.478,2.543,12s4.478,10,10.002,10c5.524,0,10.002-4.478,10.002-10c0-0.693-0.116-1.416-0.347-2.139 C21.969,10.239,12.545,10.239,12.545,10.239z" />
+                <path
+                  fill="currentColor"
+                  d="M12.545,10.239v3.621h5.739c-0.231,1.239-0.924,2.316-1.947,3.093c-1.239,0.947-2.853,1.447-4.792,1.447 c-2.969,0-5.493-1.947-6.417-4.693c-0.231-0.693-0.347-1.416-0.347-2.139s0.116-1.447,0.347-2.139 c0.924-2.747,3.447-4.693,6.417-4.693c1.616,0,3.078,0.578,4.239,1.693l2.853-2.853C16.834,3.078,14.763,2,12.545,2 C7.021,2,2.543,6.478,2.543,12s4.478,10,10.002,10c5.524,0,10.002-4.478,10.002-10c0-0.693-0.116-1.416-0.347-2.139 C21.969,10.239,12.545,10.239,12.545,10.239z"
+                />
               </svg>
               <span>Sign in with Google</span>
             </>
@@ -212,12 +302,27 @@ const Login = () => {
         <motion.div className="mt-6 text-center">
           <p className="text-gray-400">
             Don’t have an account?{" "}
-            <motion.a href="/register" className="text-[#a855f7] hover:underline" whileHover={{ color: "#6366f1", scale: 1.05 }}>Sign up</motion.a>
+            <motion.a
+              href="/register"
+              className="text-[#a855f7] hover:underline"
+              whileHover={{ color: "#6366f1", scale: 1.05 }}
+            >
+              Sign up
+            </motion.a>
           </p>
         </motion.div>
       </motion.div>
 
-      <motion.div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(45deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1))", opacity: 0.3 }} animate={{ opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 5, repeat: Infinity, repeatType: "reverse" }} />
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(45deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1))",
+          opacity: 0.3,
+        }}
+        animate={{ opacity: [0.2, 0.4, 0.2] }}
+        transition={{ duration: 5, repeat: Infinity, repeatType: "reverse" }}
+      />
     </div>
   );
 };
