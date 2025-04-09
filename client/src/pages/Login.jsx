@@ -11,7 +11,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, signup } = useAuth();
 
   useEffect(() => {
     return () => setIsLoading(false);
@@ -82,34 +82,49 @@ const Login = () => {
   const handleGoogleSuccess = async (response) => {
     setIsLoading(true);
     try {
-      const url = `${import.meta.env.VITE_API_URL}/auth/google/token`;
-      console.log("Fetching from:", url);
-      const res = await fetch(url, {
+      const googleAccessToken = response.access_token;
+  
+      // 1. Fetch user profile using access_token
+      const profileRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: {
+          Authorization: `Bearer ${googleAccessToken}`,
+        },
+      });
+  
+      if (!profileRes.ok) {
+        throw new Error("Failed to fetch Google profile");
+      }
+  
+      const profile = await profileRes.json();
+      console.log("Google profile:", profile);
+  
+      // 2. Send profile to backend
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/google/token`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: response.access_token }),
-        credentials: "include",
+        body: JSON.stringify({ profile }),
       });
+  
+      console.log("Request sent to backend with profile:", profile);
+      console.log("Response status:", res.status);
+  
       const data = await res.json();
-      console.log("Full response object:", res);
-      console.log("Response data:", data);
+  
+      // 3. Handle response
       if (res.ok) {
         const { token, user } = data;
-        setToken(token);
-        setUser(user);
-        setRole("user");
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("role", "user");
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        toast.success("Successfully logged in with Google!");
+        await signup(user.name, user.email, "", true); // Optional depending on your logic
+        toast.success("Successfully registered with Google!");
         navigate("/products");
       } else {
-        toast.error(data.message || "Google login failed");
+        toast.error(data.message || "Google registration failed");
       }
+  
     } catch (error) {
-      toast.error("Error during Google login");
-      console.error("Google login error:", error);
+      toast.error("Error during Google registration");
+      console.error("Google registration error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -301,7 +316,7 @@ const Login = () => {
 
         <motion.div className="mt-6 text-center">
           <p className="text-gray-400">
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <motion.a
               href="/register"
               className="text-[#a855f7] hover:underline"
