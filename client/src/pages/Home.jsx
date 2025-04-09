@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Banner from '../components/Banner';
 import Cards from '../components/Cards';
+import CategoryNav from '../components/CategoryNav';
 
 // New Featured Deals data (inspired by Itemku.com)
 const featuredDeals = [
@@ -218,6 +219,7 @@ const Home = () => {
       </div>
 
       <Navbar onSearchClick={() => setIsSearchOpen(true)} />
+      <CategoryNav/>
 
       {/* Search Overlay */}
       {isSearchOpen && (

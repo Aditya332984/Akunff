@@ -47,6 +47,7 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 exports.getProductDetail = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate('user', 'name email');
@@ -55,6 +56,35 @@ exports.getProductDetail = async (req, res) => {
     }
     res.json(product);
   } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.updateProduct = async (req, res) => {
+  try {
+    const { title, description, price, platform, genre, gameId } = req.body;
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Update product fields
+    product.title = title || product.title;
+    product.description = description || product.description;
+    product.price = price ? parseFloat(price) : product.price;
+    product.platform = platform || product.platform;
+    product.genre = genre || product.genre;
+    product.gameId = gameId || product.gameId;
+
+    // Handle image update if a new file is uploaded
+    if (req.file) {
+      product.image = `/uploads/${req.file.filename}`; // Update image path
+    }
+
+    await product.save();
+    res.json({ message: 'Product updated successfully', product });
+  } catch (error) {
+    console.error('Error updating product:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

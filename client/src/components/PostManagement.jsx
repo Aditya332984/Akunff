@@ -13,9 +13,10 @@ import {
   HiCalendar,
   HiEye,
   HiOutlineExclamationCircle,
-  HiPlus
+  HiPlus,
 } from 'react-icons/hi';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 
 function PostManagement({ compact = false }) {
   const [posts, setPosts] = useState([]);
@@ -28,7 +29,17 @@ function PostManagement({ compact = false }) {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState({ field: 'createdAt', direction: 'desc' });
-  
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    price: '',
+    platform: '',
+    genre: '',
+    gameId: '',
+    image: null,
+  });
+
   const postsPerPage = compact ? 5 : 10;
 
   useEffect(() => {
@@ -36,7 +47,7 @@ function PostManagement({ compact = false }) {
       setLoading(true);
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/products`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
 
         if (!response.ok) throw new Error('Failed to fetch posts');
@@ -58,13 +69,22 @@ function PostManagement({ compact = false }) {
     setLoadingDetails(true);
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/products/${postId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
 
       if (!response.ok) throw new Error('Failed to fetch post details');
 
       const data = await response.json();
       setPostDetails(data);
+      setFormData({
+        title: data.title,
+        description: data.description,
+        price: data.price,
+        platform: data.platform,
+        genre: data.genre,
+        gameId: data.gameId,
+        image: null,
+      });
     } catch (err) {
       toast.error('Error loading post details');
       console.error(err);
@@ -81,13 +101,23 @@ function PostManagement({ compact = false }) {
   const closeDetails = () => {
     setSelectedPost(null);
     setPostDetails(null);
+    setEditMode(false);
+    setFormData({
+      title: '',
+      description: '',
+      price: '',
+      platform: '',
+      genre: '',
+      gameId: '',
+      image: null,
+    });
   };
 
   const deletePost = async (postId) => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/products/${postId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
 
       if (!response.ok) throw new Error('Failed to delete post');
@@ -116,7 +146,7 @@ function PostManagement({ compact = false }) {
   const handleSort = (field) => {
     setSortOrder(prev => ({
       field,
-      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
+      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
 
@@ -158,6 +188,52 @@ function PostManagement({ compact = false }) {
       month: 'short', 
       day: 'numeric' 
     }).format(date);
+  };
+
+  const handleEdit = () => {
+    setEditMode(true);
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    const formDataToSend = new FormData();
+    formDataToSend.append('title', formData.title);
+    formDataToSend.append('description', formData.description);
+    formDataToSend.append('price', formData.price);
+    formDataToSend.append('platform', formData.platform);
+    formDataToSend.append('genre', formData.genre);
+    formDataToSend.append('gameId', formData.gameId);
+    if (formData.image) {
+      formDataToSend.append('image', formData.image);
+    }
+
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/admin/products/${selectedPost._id}`,
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      toast.success('Post updated successfully');
+      fetchPostDetails(selectedPost._id); // Refresh details
+      setEditMode(false);
+    } catch (error) {
+      toast.error('Failed to update post');
+      console.error('Error updating post:', error);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === 'image' && files && files[0]) {
+      setFormData(prev => ({ ...prev, [name]: files[0] }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   if (loading) {
@@ -262,9 +338,9 @@ function PostManagement({ compact = false }) {
                   <td className="px-6 py-5 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-14 w-14 rounded-lg overflow-hidden shadow-sm border border-indigo-100">
-                        {post.images && post.images[0] ? (
+                        {post.image ? (
                           <img 
-                            src={post.images[0]} 
+                            src={`${import.meta.env.VITE_API_URL}${post.image}`} 
                             alt={post.title} 
                             className="h-full w-full object-cover transition-transform duration-300 hover:scale-110"
                           />
@@ -309,7 +385,6 @@ function PostManagement({ compact = false }) {
                       >
                         <HiEye className="inline mr-1 h-4 w-4" /> View
                       </motion.button>
-                     
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -369,7 +444,6 @@ function PostManagement({ compact = false }) {
             </motion.button>
             
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              // Show pages around the current page
               let pageNum = currentPage - 2 + i;
               if (pageNum < 1) pageNum = i + 1;
               if (pageNum > totalPages) pageNum = totalPages - (4 - i);
@@ -515,97 +589,189 @@ function PostManagement({ compact = false }) {
                 </div>
               ) : postDetails ? (
                 <div className="p-8">
-                  <h2 className="text-2xl font-bold mb-3 text-gray-800">{postDetails.title}</h2>
-                  <div className="flex items-center text-sm text-gray-500 mb-8">
-                    <div className="flex items-center mr-6">
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] flex items-center justify-center text-white font-medium mr-2 text-xs">
-                        {postDetails.user?.name ? postDetails.user.name.charAt(0).toUpperCase() : 'U'}
+                  {editMode ? (
+                    <form onSubmit={handleUpdate} className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                        <input
+                          type="text"
+                          name="title"
+                          value={formData.title}
+                          onChange={handleChange}
+                          className="w-full p-2 border border-indigo-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                        />
                       </div>
-                      <span>{postDetails.user?.name || 'Unknown User'}</span>
-                    </div>
-                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-xs text-indigo-600">
-                      <HiCalendar className="mr-1.5 h-3.5 w-3.5" />
-                      <span>{formatDate(postDetails.createdAt)}</span>
-                    </div>
-                  </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea
+                          name="description"
+                          value={formData.description}
+                          onChange={handleChange}
+                          className="w-full p-2 border border-indigo-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white h-32"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                        <input
+                          type="number"
+                          name="price"
+                          value={formData.price}
+                          onChange={handleChange}
+                          className="w-full p-2 border border-indigo-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+                        <input
+                          type="text"
+                          name="platform"
+                          value={formData.platform}
+                          onChange={handleChange}
+                          className="w-full p-2 border border-indigo-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Genre</label>
+                        <input
+                          type="text"
+                          name="genre"
+                          value={formData.genre}
+                          onChange={handleChange}
+                          className="w-full p-2 border border-indigo-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Game ID</label>
+                        <input
+                          type="text"
+                          name="gameId"
+                          value={formData.gameId}
+                          onChange={handleChange}
+                          className="w-full p-2 border border-indigo-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
+                        <input
+                          type="file"
+                          name="image"
+                          onChange={handleChange}
+                          className="w-full p-2 border border-indigo-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                        />
+                      </div>
+                      <div className="flex justify-end space-x-3">
+                        <motion.button
+                          type="button"
+                          onClick={() => setEditMode(false)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors duration-200"
+                        >
+                          Cancel
+                        </motion.button>
+                        <motion.button
+                          type="submit"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-5 py-2.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] hover:from-[#4f46e5] hover:to-[#9333ea] text-white rounded-lg transition-colors duration-200"
+                        >
+                          Save Changes
+                        </motion.button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      <h2 className="text-2xl font-bold mb-3 text-gray-800">{postDetails.title}</h2>
+                      <div className="flex items-center text-sm text-gray-500 mb-8">
+                        <div className="flex items-center mr-6">
+                          <div className="h-8 w-8 rounded-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] flex items-center justify-center text-white font-medium mr-2 text-xs">
+                            {postDetails.user?.name ? postDetails.user.name.charAt(0).toUpperCase() : 'U'}
+                          </div>
+                          <span>{postDetails.user?.name || 'Unknown User'}</span>
+                        </div>
+                        <div className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-xs text-indigo-600">
+                          <HiCalendar className="mr-1.5 h-3.5 w-3.5" />
+                          <span>{formatDate(postDetails.createdAt)}</span>
+                        </div>
+                      </div>
 
-                  <div className="bg-indigo-50/50 p-6 rounded-xl mb-8 border border-indigo-100 shadow-sm">
-                    <h4 className="text-lg font-semibold flex items-center mb-3 text-gray-700">
-                      <HiDocumentText className="mr-2 h-5 w-5 text-indigo-500" />
-                      Description
-                    </h4>
-                    <p className="text-gray-700 whitespace-pre-line">{postDetails.description}</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    {postDetails.price && (
-                      <div className="bg-indigo-50/50 p-6 rounded-xl border border-indigo-100 shadow-sm">
+                      <div className="bg-indigo-50/50 p-6 rounded-xl mb-8 border border-indigo-100 shadow-sm">
                         <h4 className="text-lg font-semibold flex items-center mb-3 text-gray-700">
-                          <HiCurrencyDollar className="mr-2 h-5 w-5 text-indigo-500" />
-                          Price
+                          <HiDocumentText className="mr-2 h-5 w-5 text-indigo-500" />
+                          Description
                         </h4>
-                        <p className="text-gray-800 text-xl font-bold bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent">
-                          ${postDetails.price}
-                        </p>
+                        <p className="text-gray-700 whitespace-pre-line">{postDetails.description}</p>
                       </div>
-                    )}
 
-                    {postDetails.category && (
-                      <div className="bg-indigo-50/50 p-6 rounded-xl border border-indigo-100 shadow-sm">
-                        <h4 className="text-lg font-semibold flex items-center mb-3 text-gray-700">
-                          <HiTag className="mr-2 h-5 w-5 text-indigo-500" />
-                          Category
-                        </h4>
-                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 text-sm text-indigo-800 font-medium">
-                          {postDetails.category}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        {postDetails.price && (
+                          <div className="bg-indigo-50/50 p-6 rounded-xl border border-indigo-100 shadow-sm">
+                            <h4 className="text-lg font-semibold flex items-center mb-3 text-gray-700">
+                              <HiCurrencyDollar className="mr-2 h-5 w-5 text-indigo-500" />
+                              Price
+                            </h4>
+                            <p className="text-gray-800 text-xl font-bold bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent">
+                              ${postDetails.price}
+                            </p>
+                          </div>
+                        )}
 
-                  {postDetails.images && postDetails.images.length > 0 && (
-                    <div className="mb-8">
-                      <h4 className="text-lg font-semibold flex items-center mb-4 text-gray-700">
-                        <HiPhotograph className="mr-2 h-5 w-5 text-indigo-500" />
-                        Images ({postDetails.images.length})
-                      </h4>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {postDetails.images.map((img, index) => (
-                          <motion.div 
-                            key={index} 
-                            className="aspect-square bg-indigo-50 rounded-xl overflow-hidden shadow hover:shadow-md transition-shadow duration-200 border border-indigo-100"
-                            whileHover={{ scale: 1.03 }}
-                          >
-                            <img
-                              src={img}
-                              alt={`${postDetails.title} - Image ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                          </motion.div>
-                        ))}
+                        {postDetails.platform && (
+                          <div className="bg-indigo-50/50 p-6 rounded-xl border border-indigo-100 shadow-sm">
+                            <h4 className="text-lg font-semibold flex items-center mb-3 text-gray-700">
+                              <HiTag className="mr-2 h-5 w-5 text-indigo-500" />
+                              Platform
+                            </h4>
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 text-sm text-indigo-800 font-medium">
+                              {postDetails.platform}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    </div>
+
+                      {postDetails.image && (
+                        <div className="mb-8">
+                          <h4 className="text-lg font-semibold flex items-center mb-4 text-gray-700">
+                            <HiPhotograph className="mr-2 h-5 w-5 text-indigo-500" />
+                            Image
+                          </h4>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <motion.div 
+                              className="aspect-square bg-indigo-50 rounded-xl overflow-hidden shadow hover:shadow-md transition-shadow duration-200 border border-indigo-100"
+                              whileHover={{ scale: 1.03 }}
+                            >
+                              <img
+                                src={`${import.meta.env.VITE_API_URL}${postDetails.image}`}
+                                alt={`${postDetails.title} - Image`}
+                                className="w-full h-full object-cover"
+                              />
+                            </motion.div>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex justify-end space-x-3 mt-10 pt-6 border-t border-indigo-100">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => confirmDelete(postDetails)}
+                          className="px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors duration-200 flex items-center border border-red-100 shadow-sm"
+                        >
+                          <HiTrash className="mr-2 h-5 w-5" />
+                          Delete Post
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={handleEdit}
+                          className="px-5 py-2.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] hover:from-[#4f46e5] hover:to-[#9333ea] text-white rounded-lg transition-colors duration-200 flex items-center shadow-md"
+                        >
+                          <HiPencil className="mr-2 h-5 w-5" />
+                          Edit Post
+                        </motion.button>
+                      </div>
+                    </>
                   )}
-
-                  <div className="flex justify-end space-x-3 mt-10 pt-6 border-t border-indigo-100">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => confirmDelete(postDetails)}
-                      className="px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors duration-200 flex items-center border border-red-100 shadow-sm"
-                    >
-                      <HiTrash className="mr-2 h-5 w-5" />
-                      Delete Post
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-5 py-2.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] hover:from-[#4f46e5] hover:to-[#9333ea] text-white rounded-lg transition-colors duration-200 flex items-center shadow-md"
-                    >
-                      <HiPencil className="mr-2 h-5 w-5" />
-                      Edit Post
-                    </motion.button>
-                  </div>
                 </div>
               ) : (
                 <div className="p-8 flex flex-col items-center justify-center">
