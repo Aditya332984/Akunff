@@ -1,50 +1,74 @@
-const express = require('express');
+// routes/userRoutes.js
+const express = require("express");
 const router = express.Router();
+const authMiddleware = require("../middleware/auth");
+const User = require("../models/User");
 
+// @desc Get user data
+// @route GET /api/users/me
+router.get("/me", authMiddleware, async (req, res) => {
+  console.log("Decoded user from token:", req.user); // Should show { id: ... }
 
-
-// Controller functions
-const getUserData = (req, res) => {
-    const userId = parseInt(req.query.id); // Assuming user ID is passed as a query parameter
-    const user = users.find(u => u.id === userId);
-
+  try {
+    const user = await User.findById(req.user.id).select("-password"); // Remove password from response
     if (user) {
-        res.status(200).json({ success: true, data: user });
+      res.status(200).json({ success: true, data: user });
     } else {
-        res.status(404).json({ success: false, message: 'User not found' });
+      res.status(404).json({ success: false, message: "User not found" });
     }
-};
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
+  }
+});
 
-const updatePassword = (req, res) => {
-    const userId = parseInt(req.body.id); // Assuming user ID is passed in the request body
-    const newPassword = req.body.password;
+// @desc Update user password
+// @route PUT /api/users/update-password
+router.put("/update-password", authMiddleware, async (req, res) => {
+  const { password } = req.body;
 
-    const user = users.find(u => u.id === userId);
+  if (!password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Password is required" });
+  }
 
+  try {
+    const user = await User.findById(req.user.id);
     if (user) {
-        user.password = newPassword; // Update the password
-        res.status(200).json({ success: true, message: 'Password updated successfully' });
+      user.password = password; // In production, hash this password before saving!
+      await user.save();
+      res
+        .status(200)
+        .json({ success: true, message: "Password updated successfully" });
     } else {
-        res.status(404).json({ success: false, message: 'User not found' });
+      res.status(404).json({ success: false, message: "User not found" });
     }
-};
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
+  }
+});
 
-// Routes
-router.get('/user', getUserData); // Route to get user data
-router.put('/user/password', updatePassword); // Route to update password
+// @desc Delete user
+// @route DELETE /api/users/delete
+router.delete("/delete", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.user.id);
+    if (user) {
+      res
+        .status(200)
+        .json({ success: true, message: "User deleted successfully" });
+    } else {
+      res.status(404).json({ success: false, message: "User not found" });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
+  }
+});
 
 module.exports = router;
-const deleteUser = (req, res) => {
-    const userId = parseInt(req.body.id); // Assuming user ID is passed in the request body
-
-    const userIndex = users.findIndex(u => u.id === userId);
-
-    if (userIndex !== -1) {
-        users.splice(userIndex, 1); // Remove the user from the array
-        res.status(200).json({ success: true, message: 'User deleted successfully' });
-    } else {
-        res.status(404).json({ success: false, message: 'User not found' });
-    }
-};
-
-router.delete('/user', deleteUser); // Route to delete user

@@ -1,10 +1,15 @@
-// server/middleware/auth.js
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
-  // Get token from Authorization header
+  // Check token from either Authorization header or cookies
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+  const tokenFromHeader = authHeader && authHeader.split(' ')[1];
+  const tokenFromCookie = req.cookies.token;
+
+  const token = tokenFromHeader || tokenFromCookie;
+
+  console.log('Auth Header:', authHeader);
+  console.log('Cookie Token:', tokenFromCookie);
 
   if (!token) {
     return res.status(401).json({ error: 'No token provided' });
