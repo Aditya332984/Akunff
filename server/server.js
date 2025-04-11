@@ -20,6 +20,7 @@ const User = require('./models/User');
 const Message = require('./models/Message');
 const authMiddleware = require('./middleware/auth');
 const adminRoutes = require('./routes/adminRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
@@ -133,6 +134,7 @@ app.use('/api/product', upload.single('image'), productRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/users',userRoutes);
 
 // Message Routes
 app.get('/api/auth/user/:id', authMiddleware, async (req, res) => {
