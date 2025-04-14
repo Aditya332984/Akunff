@@ -126,9 +126,31 @@ export const AuthProvider = ({ children }) => {
     toast.success("Logged out successfully!");
     navigate("/login");
   };
+  const updatepassword = async(newPassword)=>{
+    try{
+      await axios.put(
+        'api/users/update-password',
+        {password:newPassword},
+        {headers:{'Content-Type':'application/json'}}
+      );
+    }catch(error){
+      throw error;
+    }
+  }
 
+  const deleteAccount = async()=>{
+    try{
+      await axios.delete(
+        'api/users/delete',
+        {headers:{'Content-Type':'application/json'}}
+      );
+      logout();
+    }catch(error){
+      throw error;
+    }
+  }
   return (
-    <AuthContext.Provider value={{ user, token, role, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, token, role, loading, login, signup, logout,updatepassword,deleteAccount }}>
       {!loading && children}
     </AuthContext.Provider>
   );
