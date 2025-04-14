@@ -102,7 +102,7 @@ const Navbar = () => {
       <motion.div className="md:hidden bg-gray-900 px-4 pb-3 border-b border-gray-800">
         <div className="relative">
           <div className="absolute inset-y-0 left-3 flex items-center"><Search className="h-4 w-4 text-gray-400" /></div>
-          <input type="text" placeholder="Search for games, gift cards..." className="w-full pl-10 pr-20 py-2 rounded-full bg-gray-800 border border ((((border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
+          <input type="text" placeholder="Search for games, gift cards..." className="w-full pl-10 pr-20 py-2 rounded-full bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
           <motion.button variants={buttonHoverVariants} className="absolute right-0 top-0 h-full px-4 rounded-r-full bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors duration-300">Search</motion.button>
         </div>
       </motion.div>
@@ -133,16 +133,6 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      <motion.nav className="bg-gray-800 text-white py-3 shadow-md sticky z-40 transition-all duration-300 backdrop-blur-sm" style={{ top: scrolled ? '3.5rem' : '5rem' }}>
-        <div className="container mx-auto flex justify-center space-x-6 overflow-x-auto px-4">
-          {['All Categories', 'Steam Gift Cards', 'BIGO Live', 'PSN Card', 'RBL Universe', 'Top Up MLBB', 'Game Points'].map((category, index) => (
-            <motion.a key={category} className={`whitespace-nowrap transition-all duration-300 ${index === 0 ? 'font-bold text-indigo-400' : ''}`} href={`#${category.toLowerCase().replace(/ /g, '-')}`}>
-              <span className="relative">{category}<motion.span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-500" whileHover={{ width: "100%" }} transition={{ duration: 0.3 }} /></span>
-              {index === 0 && <ChevronDown size={14} className="inline-block ml-1" />}
-            </motion.a>
-          ))}
-        </div>
-      </motion.nav>
     </motion.div>
   );
 };
