@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 // Mock game data with placeholder images (replace with actual game images)
 const games = [
@@ -39,6 +40,7 @@ const games = [
 ];
 
 const Banner = () => {
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoplay, setIsAutoplay] = useState(true);
   const [direction, setDirection] = useState(1);
@@ -594,6 +596,7 @@ const Banner = () => {
                       boxShadow: "0 0 15px rgba(99, 102, 241, 0.5)",
                       border: "1px solid rgba(139, 92, 246, 0.5)"
                     }}
+                    onClick={()=>navigate('/products')}
                   >
                     {games[currentSlide].buttonText}
                   </motion.button>
@@ -609,6 +612,7 @@ const Banner = () => {
                       border: "1px solid rgba(99, 102, 241, 0.3)",
                       boxShadow: "0 0 10px rgba(99, 102, 241, 0.1)"
                     }}
+                    onClick={() => navigate('/products')}
                   >
                     View Details
                   </motion.button>
