@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/auth");
 const User = require("../models/User");
+const bcrypt = require("bcrypt");
 
 // @desc Get user data
 // @route GET /api/users/me
@@ -37,7 +38,8 @@ router.put("/update-password", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (user) {
-      user.password = password; // In production, hash this password before saving!
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt); // Hash the password before saving
       await user.save();
       res
         .status(200)
