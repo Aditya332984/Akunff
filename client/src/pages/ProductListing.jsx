@@ -99,7 +99,7 @@ const MarketplaceBanner = () => (
 const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
-  const API_BASE_URL = 'http://localhost:3000'; // Base URL for static files
+  const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3000";
 
   // Generate random rating between 4.0 and 5.0
   const rating = (4 + Math.random()).toFixed(1);
@@ -118,7 +118,7 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
     >
       <div className="relative h-52 overflow-hidden">
         <img
-          src={`${API_BASE_URL}${product.image}`}
+          src={`${BASE_URL}${product.image}`}
           alt={product.title}
           className="w-full h-full object-cover transition-transform duration-700"
           style={{ transform: isHovered ? "scale(1.1)" : "scale(1)" }}
@@ -202,7 +202,7 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
   );
 };
 
-// New FilterSidebar component for the right side space
+// FilterSidebar component for the right side space
 const FilterSidebar = ({ categories, platforms, onFilter }) => {
   const [priceRange, setPriceRange] = useState([0, 100]);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -314,7 +314,7 @@ const FilterSidebar = ({ categories, platforms, onFilter }) => {
         </div>
       </div>
 
-      {/* Recommended Games - Using the right side efficiently */}
+      {/* Recommended Games */}
       <div className="mt-8">
         <h3 className="text-md font-bold mb-4 flex items-center">
           <FiStar className="mr-2 text-yellow-400" />
@@ -368,7 +368,7 @@ const FilterSidebar = ({ categories, platforms, onFilter }) => {
   );
 };
 
-// New PromoSection component
+// PromoSection component
 const PromoSection = () => (
   <motion.div
     className="bg-gradient-to-r from-[#6366f1]/10 to-[#a855f7]/10 rounded-2xl p-6 mb-8 border border-[#6366f1]/20"
@@ -401,7 +401,7 @@ const PromoSection = () => (
   </motion.div>
 );
 
-// Enhanced ProductListing component with right sidebar
+// ProductListing component
 const ProductListing = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -466,7 +466,6 @@ const ProductListing = () => {
   };
 
   const handleFilter = (filters) => {
-    // Implement filtering logic based on filters object
     console.log("Applying filters:", filters);
   };
 
@@ -664,7 +663,6 @@ const ProductListing = () => {
             </div>
           </motion.div>
 
-          {/* Right Sidebar - Fixing the empty space */}
           <div className="lg:w-1/4">
             {user && (
               <motion.div

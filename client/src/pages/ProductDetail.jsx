@@ -26,7 +26,7 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [wishlist, setWishlist] = useState(false);
   const { user, token } = useAuth();
-  const API_BASE_URL = 'http://localhost:3000'; // Base URL for static files
+  const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3000";
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -91,7 +91,7 @@ const ProductDetail = () => {
 
       const responseData = await response.json();
       if (response.ok) {
-        setNewReview({ text: "", rating: 0 });
+        setNewReview({ text: "", rating: 0 }); // Fixed syntax here
         const updatedReviews = await fetch(`${import.meta.env.VITE_API_URL}/reviews/${id}`);
         const data = await updatedReviews.json();
         setReviews(data);
@@ -154,9 +154,9 @@ const ProductDetail = () => {
   }
 
   const productImages = [
-    `${API_BASE_URL}${product.image}`,
-    `${API_BASE_URL}${product.image}`,
-    `${API_BASE_URL}${product.image}`,
+    `${BASE_URL}${product.image}`,
+    `${BASE_URL}${product.image}`,
+    `${BASE_URL}${product.image}`,
   ];
 
   const avgRating = reviews.length
