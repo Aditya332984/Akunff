@@ -16,11 +16,9 @@ function UserManagement({ compact = false }) {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/users`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch users');
-        }
-        
+
+        if (!response.ok) throw new Error('Failed to fetch users');
+
         const data = await response.json();
         setUsers(data);
       } catch (err) {
@@ -30,7 +28,7 @@ function UserManagement({ compact = false }) {
         setLoading(false);
       }
     };
-    
+
     fetchUsers();
   }, []);
 
@@ -40,11 +38,9 @@ function UserManagement({ compact = false }) {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to delete user');
-      }
-      
+
+      if (!response.ok) throw new Error('Failed to delete user');
+
       setUsers(users.filter((user) => user._id !== userId));
       toast.success('User deleted successfully');
     } catch (err) {
@@ -60,10 +56,9 @@ function UserManagement({ compact = false }) {
     setUserToDelete(user);
     setShowConfirmModal(true);
   };
-  
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+
+  const filteredUsers = users.filter((user) =>
+    (user.email || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const displayedUsers = compact ? filteredUsers.slice(0, 5) : filteredUsers;
@@ -98,12 +93,11 @@ function UserManagement({ compact = false }) {
           </div>
         )}
       </div>
-      
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
@@ -118,13 +112,8 @@ function UserManagement({ compact = false }) {
                         <HiUserCircle className="w-6 h-6 text-gray-400" />
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                        <div className="text-sm font-medium text-gray-900">{user.email}</div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <HiMail className="mr-1 h-4 w-4" /> {user.email}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -139,7 +128,7 @@ function UserManagement({ compact = false }) {
               ))
             ) : (
               <tr>
-                <td colSpan="3" className="px-6 py-4 text-center text-sm text-gray-500">
+                <td colSpan="2" className="px-6 py-4 text-center text-sm text-gray-500">
                   No users found
                 </td>
               </tr>
@@ -147,7 +136,7 @@ function UserManagement({ compact = false }) {
           </tbody>
         </table>
       </div>
-      
+
       {compact && users.length > 5 && (
         <div className="p-4 border-t border-gray-100 text-center">
           <a href="#" className="text-blue-600 hover:text-blue-800 font-medium">
@@ -155,13 +144,13 @@ function UserManagement({ compact = false }) {
           </a>
         </div>
       )}
-      
+
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Confirm Deletion</h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete user "{userToDelete?.name}"? This action cannot be undone.
+              Are you sure you want to delete the user with email "{userToDelete?.email}"? This action cannot be undone.
             </p>
             <div className="flex justify-end space-x-3">
               <button
