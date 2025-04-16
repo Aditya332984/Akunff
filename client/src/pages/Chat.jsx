@@ -15,7 +15,8 @@ const Chat = () => {
   const [chattingWith, setChattingWith] = useState('Loading...');
   const [socket, setSocket] = useState(null);
   const messagesContainerRef = useRef(null);
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:3000';
   const user = JSON.parse(localStorage.getItem('user')) || {};
   const token = localStorage.getItem('token');
 
@@ -68,9 +69,15 @@ const Chat = () => {
 
     initializeChat();
 
-    const ws = new WebSocket(`ws://localhost:3000?token=${token}&productId=${productId}`);
+    // Dynamic WebSocket URL based on current location
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsHost = window.location.hostname === 'localhost' 
+      ? `localhost:${import.meta.env.VITE_WS_PORT || 3000}` 
+      : window.location.host;
+    const ws = new WebSocket(`${wsProtocol}//${wsHost}?token=${encodeURIComponent(token)}&productId=${productId}`);
+
     ws.onopen = () => {
-      console.log('WebSocket connected');
+      console.log(`WebSocket connected to ${wsProtocol}//${wsHost}`);
       setIsConnected(true);
       setSocket(ws);
     };
@@ -95,7 +102,10 @@ const Chat = () => {
       console.log('WebSocket disconnected');
       setIsConnected(false);
     };
-    ws.onerror = (error) => console.error('WebSocket error:', error);
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setIsConnected(false);
+    };
 
     return () => ws.close();
   }, [sellerId, productId, user.id, token, navigate]);
@@ -108,21 +118,36 @@ const Chat = () => {
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !socket || !sellerId || !productId) return;
+    if (!newMessage.trim() || !socket || !sellerId || !productId) {
+      console.log('Send failed - Conditions:', {
+        newMessage: newMessage.trim(),
+        socket: !!socket,
+        sellerId,
+        productId,
+        isConnected,
+      });
+      return;
+    }
 
     const message = { message: newMessage, recipient: sellerId, timestamp: new Date().toISOString() };
-    socket.send(JSON.stringify(message));
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: prev.length + 1,
-        sender: 'You',
-        text: newMessage,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isReceived: false,
-      },
-    ]);
-    setNewMessage('');
+    console.log('Attempting to send message:', message);
+    try {
+      socket.send(JSON.stringify(message));
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          sender: 'You',
+          text: newMessage,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isReceived: false,
+        },
+      ]);
+      setNewMessage('');
+      console.log('Message sent successfully');
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
   };
 
   return (
