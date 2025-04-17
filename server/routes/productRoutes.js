@@ -8,15 +8,20 @@ const path = require('path');
 const router = express.Router();
 
 // Middleware to authenticate JWT token
+// routes/productRoutes.js
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+  const token = authHeader && authHeader.split(' ')[1];
+
+  // Cleanup files on auth failure
+  const cleanupFiles = () => {
+    if (req.files?.image?.tempFilePath) {
+      fs.unlinkSync(req.files.image.tempFilePath);
+    }
+  };
 
   if (!token) {
-    // Delete the uploaded file if it exists
-    if (req.file) {
-      fs.unlinkSync(path.join(__dirname, '..', 'uploads', req.file.filename));
-    }
+    cleanupFiles();
     return res.status(401).json({ message: 'Authentication token required' });
   }
 
@@ -25,10 +30,7 @@ const authenticateToken = (req, res, next) => {
     req.user = { id: decoded.id };
     next();
   } catch (error) {
-    // Delete the uploaded file if it exists
-    if (req.file) {
-      fs.unlinkSync(path.join(__dirname, '..', 'uploads', req.file.filename));
-    }
+    cleanupFiles();
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
 };

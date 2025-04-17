@@ -1,4 +1,3 @@
-// server/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -13,47 +12,36 @@ const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
-const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 const User = require('./models/User');
 const Message = require('./models/Message');
 const authMiddleware = require('./middleware/auth');
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
+const fileUpload = require('express-fileupload');
+const cloudinary = require('cloudinary').v2;
 
 const app = express();
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log('Created uploads directory at:', uploadsDir);
-}
-
-// Multer Configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
+// Cloudinary Config
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) cb(null, true);
-  else cb(new Error('Only image files are allowed'), false);
-};
-const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
+
+// Middleware
+app.use(express.json());
+app.use(fileUpload({ useTempFiles: true }));
+app.use(cookieParser());
 
 // CORS Configuration
-// Allow both www and non-www versions of your domain
 const allowedOrigins = [
   'https://akunff.com',
   'https://www.akunff.com',
-  'http://localhost:5173' // For local development
+  'http://localhost:5173',
 ];
 
-// Middleware for preflight requests
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -62,21 +50,13 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
 });
 
-// Regular middleware setup
-app.use(express.json());
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       console.log('CORS blocked for origin:', origin);
@@ -84,19 +64,16 @@ app.use(cors({
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(cookieParser());
+
 app.use(passport.initialize());
-app.use('/uploads', express.static('uploads'));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Passport Google Strategy
+// Google OAuth Strategy
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -105,7 +82,12 @@ passport.use(new GoogleStrategy({
   try {
     let user = await User.findOne({ googleId: profile.id });
     if (!user) {
-      user = new User({ googleId: profile.id, name: profile.displayName, email: profile.emails[0].value, password: null });
+      user = new User({
+        googleId: profile.id,
+        name: profile.displayName,
+        email: profile.emails[0].value,
+        password: null,
+      });
       await user.save();
     }
     const token = jwt.sign({ id: user._id, googleId: user.googleId }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -116,27 +98,15 @@ passport.use(new GoogleStrategy({
   }
 }));
 
-// Add CORS headers to all responses
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  next();
-});
-
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/product', upload.single('image'), productRoutes);
+app.use('/api/product', productRoutes); // Upload handled inside productRoutes now
 app.use('/api/messages', messageRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/users',userRoutes);
+app.use('/api/users', userRoutes);
 
-// Message Routes
+// User Info Route
 app.get('/api/auth/user/:id', authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -155,22 +125,18 @@ app.get('/', (req, res) => res.send('API is running'));
 app.use((err, req, res, next) => {
   if (err.message === 'Not allowed by CORS') {
     console.error(`CORS error: ${req.headers.origin} trying to access ${req.path}`);
-    return res.status(403).json({ 
-      message: 'CORS error', 
+    return res.status(403).json({
+      message: 'CORS error',
       error: 'Origin not allowed',
-      allowedOrigins: allowedOrigins 
+      allowedOrigins,
     });
   }
   next(err);
 });
 
-// Error Handling Middleware
+// General Error Handler
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
-  if (err instanceof multer.MulterError) {
-    if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ message: 'File too large. Maximum size is 5MB.' });
-    return res.status(400).json({ message: 'File upload error', error: err.message });
-  }
   res.status(500).json({ message: 'Internal server error', error: err.message });
 });
 
@@ -180,7 +146,6 @@ const wss = new WebSocket.Server({ server });
 const clients = new Map();
 
 wss.on('connection', (ws, req) => {
-  console.log('New WebSocket connection established');
   const urlParams = new URLSearchParams(req.url.split('?')[1]);
   const token = urlParams.get('token');
   const productId = urlParams.get('productId');
@@ -207,7 +172,6 @@ wss.on('connection', (ws, req) => {
       }
 
       clients.set(ws, { userId: user._id.toString(), googleId: user.googleId, name: user.name, productId });
-      console.log(`Client authenticated: ${user.name} (${user.googleId}) for product ${productId}`);
 
       ws.send(JSON.stringify({
         type: 'welcome',
@@ -220,7 +184,7 @@ wss.on('connection', (ws, req) => {
           const clientInfo = clients.get(ws);
 
           if (!parsedMessage.message || !parsedMessage.recipient || !parsedMessage.timestamp) {
-            ws.send(JSON.stringify({ error: 'Invalid message format: message, recipient, and timestamp required' }));
+            ws.send(JSON.stringify({ error: 'Invalid message format' }));
             return;
           }
 
@@ -240,31 +204,33 @@ wss.on('connection', (ws, req) => {
               (recipientInfo.userId === parsedMessage.recipient || recipientInfo.userId === clientInfo.userId) &&
               recipientInfo.productId === productId
             ) {
-              client.send(
-                JSON.stringify({
-                  type: 'chat',
-                  sender: { userId: clientInfo.userId, name: clientInfo.name, googleId: clientInfo.googleId },
-                  message: parsedMessage.message,
-                  timestamp: parsedMessage.timestamp,
-                  productId,
-                })
-              );
+              client.send(JSON.stringify({
+                type: 'chat',
+                sender: {
+                  userId: clientInfo.userId,
+                  name: clientInfo.name,
+                  googleId: clientInfo.googleId,
+                },
+                message: parsedMessage.message,
+                timestamp: parsedMessage.timestamp,
+                productId,
+              }));
             }
           });
         } catch (error) {
-          console.error('Error handling message:', error);
+          console.error('WebSocket message error:', error);
           ws.send(JSON.stringify({ error: 'Failed to process message' }));
         }
       });
 
       ws.on('close', () => {
         clients.delete(ws);
-        console.log(`Client disconnected: ${user.name} (${user.googleId})`);
+        console.log(`Client disconnected: ${user.name}`);
       });
 
       ws.on('error', (error) => console.error('WebSocket error:', error));
     } catch (error) {
-      console.error('Error verifying user:', error);
+      console.error('WebSocket user verification error:', error);
       ws.close();
     }
   });

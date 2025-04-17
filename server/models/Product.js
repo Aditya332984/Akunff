@@ -13,6 +13,14 @@ const ProductSchema = new mongoose.Schema({
   gameId: { type: String, trim: true }, // New field for game ID
   image: { type: String }, // Added for image URL
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  image:{
+    type: String,
+    required: true,
+  },
+  publicId:{
+    type:String,
+    required: true,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
