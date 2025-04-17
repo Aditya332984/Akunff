@@ -69,18 +69,19 @@ const Chat = () => {
 
     initializeChat();
 
-    // Dynamic WebSocket URL based on current location
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsHost = window.location.hostname === 'localhost' 
-      ? `localhost:${import.meta.env.VITE_WS_PORT || 3000}` 
-      : window.location.host;
-    const ws = new WebSocket(`${wsProtocol}//${wsHost}?token=${encodeURIComponent(token)}&productId=${productId}`);
+    // Fixed WebSocket URL logic
+    const wsURL = window.location.hostname === 'localhost'
+      ? `ws://localhost:${import.meta.env.VITE_WS_PORT || 3000}`
+      : `wss://akunff.onrender.com`;
+
+    const ws = new WebSocket(`${wsURL}?token=${encodeURIComponent(token)}&productId=${productId}`);
 
     ws.onopen = () => {
-      console.log(`WebSocket connected to ${wsProtocol}//${wsHost}`);
+      console.log(`WebSocket connected to ${wsURL}`);
       setIsConnected(true);
       setSocket(ws);
     };
+
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === 'chat' && data.productId === productId) {
@@ -98,10 +99,12 @@ const Chat = () => {
         console.log(data.message);
       }
     };
+
     ws.onclose = () => {
       console.log('WebSocket disconnected');
       setIsConnected(false);
     };
+
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
       setIsConnected(false);
@@ -119,18 +122,10 @@ const Chat = () => {
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !socket || !sellerId || !productId) {
-      console.log('Send failed - Conditions:', {
-        newMessage: newMessage.trim(),
-        socket: !!socket,
-        sellerId,
-        productId,
-        isConnected,
-      });
       return;
     }
 
     const message = { message: newMessage, recipient: sellerId, timestamp: new Date().toISOString() };
-    console.log('Attempting to send message:', message);
     try {
       socket.send(JSON.stringify(message));
       setMessages((prev) => [
@@ -144,11 +139,11 @@ const Chat = () => {
         },
       ]);
       setNewMessage('');
-      console.log('Message sent successfully');
     } catch (error) {
       console.error('Failed to send message:', error);
     }
   };
+
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0f172a] text-white relative overflow-hidden">
