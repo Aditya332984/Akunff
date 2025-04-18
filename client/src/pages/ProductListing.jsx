@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { replace, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import CartSummary from "../components/CartSummary";
@@ -204,7 +204,10 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
             boxShadow: "0 5px 15px rgba(168,85,247,0.4)",
           }}
           whileTap={{ scale: 0.97 }}
-          onClick={() => navigate(`/product/${product._id}`)}
+          onClick={() => {
+            navigate(`/product/${product._id}`, {replace: true});
+            window.location.reload(true);
+          }}
         >
           View Details
         </motion.button>

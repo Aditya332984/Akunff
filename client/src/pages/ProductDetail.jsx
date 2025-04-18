@@ -29,6 +29,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     const fetchProduct = async () => {
+      setLoading(true);
       try {
         console.log("Fetching product from:", `${import.meta.env.VITE_API_URL}/product/${id}`);
         const response = await fetch(`${import.meta.env.VITE_API_URL}/product/${id}`);
@@ -48,6 +49,7 @@ const ProductDetail = () => {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching product details:", error);
+      }finally{
         setLoading(false);
       }
     };
