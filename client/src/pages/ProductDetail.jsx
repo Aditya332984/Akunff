@@ -38,8 +38,13 @@ const ProductDetail = () => {
           throw new Error("Response is not JSON");
         }
         const data = await response.json();
-        console.log("Product data received:", data); // Debug log to check image URL
-        setProduct(data);
+        console.log("Product data received:", data); // Debug log to check user and id
+        if (!data._id || !data.user?._id) {
+          console.warn("Product data missing _id or user._id:", data);
+          setProduct({ ...data, _id: data._id || id, user: data.user || { _id: null } });
+        } else {
+          setProduct(data);
+        }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching product details:", error);
@@ -112,7 +117,8 @@ const ProductDetail = () => {
 
   const handleChatWithSeller = () => {
     if (!product?.user?._id || !product?._id) {
-      console.error("Seller ID or Product ID is missing");
+      console.error("Seller ID or Product ID is missing", { userId: product?.user?._id, productId: product?._id });
+      alert("Unable to initiate chat. Seller or product information is missing. Please contact support.");
       return;
     }
     navigate(`/chat/${product.user._id}?productId=${product._id}`);
@@ -154,9 +160,8 @@ const ProductDetail = () => {
   }
 
   // Create array of product images - use full Cloudinary URL
-  // Assuming product.image contains the full Cloudinary URL
   const productImages = product.image?.url ? 
-    [product.image?.url, product.image?.url, product.image?.url] : 
+    [product.image.url, product.image.url, product.image.url] : 
     ['/api/placeholder/400/320', '/api/placeholder/400/320', '/api/placeholder/400/320'];
 
   const avgRating = reviews.length

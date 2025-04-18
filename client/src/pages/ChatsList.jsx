@@ -26,19 +26,25 @@ const ChatsList = () => {
         console.log('Fetching chats with token:', token); // Log the token
         const response = await axios.get(`${API_URL}/messages/active`, {
           headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true, // Ensure cookies are sent
         });
         console.log('Chats response:', response.data); // Log the response
-        setChats(response.data);
+        // Filter out chats with missing data
+        const validChats = response.data.filter(chat => chat.sellerId && chat.productId && chat.productTitle && chat.sellerName);
+        setChats(validChats);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching chats:', error);
+        console.error('Error fetching chats:', error.response ? error.response.data : error.message);
         if (error.response?.status === 401) {
           // If unauthorized, clear localStorage and redirect to login
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           navigate('/login');
+        } else if (error.response?.status === 500) {
+          setError('Server error. Please try again later.');
+        } else {
+          setError(`Failed to load chats: ${error.response?.data?.message || error.message}`);
         }
-        setError('Failed to load chats. Please try again later.');
         setLoading(false);
       }
     };

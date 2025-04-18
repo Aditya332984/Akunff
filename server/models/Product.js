@@ -11,12 +11,11 @@ const ProductSchema = new mongoose.Schema({
   },
   genre: { type: String, required: true },
   gameId: { type: String, trim: true }, // New field for game ID
-  image: { type: String }, // Added for image URL
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  image:{
+  image: {
     url: { type: String, required: true },
-    publicId:{ type: String, required: true }
+    publicId: { type: String, required: true }
   },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now },
 });
 

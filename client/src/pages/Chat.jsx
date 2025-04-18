@@ -50,20 +50,25 @@ const Chat = () => {
           setChattingWith(sellerResponse.data.name);
         } else {
           setChattingWith('Unknown Seller');
+          console.warn('Seller name not found for ID:', sellerId);
         }
 
         setMessages(
           messagesResponse.data.map((msg) => ({
             id: msg._id,
-            sender: msg.sender.name,
+            sender: msg.sender?.name || 'Unknown',
             text: msg.message,
             time: new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            isReceived: msg.sender._id !== user.id,
+            isReceived: msg.sender?._id !== user.id,
           }))
         );
       } catch (error) {
         console.error('Error initializing chat:', error);
         setChattingWith('Unknown Seller');
+        if (error.response?.status === 404) {
+          alert('Seller not found. Please try again.');
+          navigate('/products');
+        }
       }
     };
 
@@ -89,7 +94,7 @@ const Chat = () => {
           ...prev,
           {
             id: prev.length + 1,
-            sender: data.sender.name,
+            sender: data.sender.name || 'Unknown',
             text: data.message,
             time: new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             isReceived: data.sender.userId !== user.id,
@@ -97,6 +102,9 @@ const Chat = () => {
         ]);
       } else if (data.type === 'welcome') {
         console.log(data.message);
+      } else if (data.error) {
+        console.error('WebSocket error:', data.error);
+        setIsConnected(false);
       }
     };
 
@@ -141,9 +149,9 @@ const Chat = () => {
       setNewMessage('');
     } catch (error) {
       console.error('Failed to send message:', error);
+      alert('Failed to send message. Please check your connection.');
     }
   };
-
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0f172a] text-white relative overflow-hidden">
@@ -209,7 +217,7 @@ const Chat = () => {
                 placeholder="Type a message..."
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                disabled={!sellerId || !productId}
+                disabled={!sellerId || !productId || !isConnected}
               />
               <motion.button
                 type="submit"

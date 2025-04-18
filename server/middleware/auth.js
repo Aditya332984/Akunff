@@ -17,11 +17,14 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Sets req.user with { id: user._id }
+    if (!decoded || !decoded.id) {
+      throw new Error('Invalid token payload');
+    }
+    req.user = { id: decoded.id }; // Ensure req.user has at least an id
     next();
   } catch (error) {
-    console.error('Token verification error:', error);
-    res.status(401).json({ error: 'Invalid token' });
+    console.error('Token verification error:', error.message);
+    res.status(401).json({ error: 'Invalid token', details: error.message });
   }
 };
 
