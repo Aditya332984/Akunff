@@ -15,85 +15,96 @@ import {
 } from "react-icons/fi";
 
 // Enhanced MarketplaceBanner with animated background elements
-const MarketplaceBanner = () => (
-  <motion.div
-    className="relative overflow-hidden bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white py-10"
-    initial={{ opacity: 0, y: -50 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.8 }}
-  >
+const MarketplaceBanner = () => {
+  const handleScroll = () => {
+    window.scrollBy({
+      top: 500, // Adjust this value to control how much the page scrolls
+      behavior: "smooth",
+    });
+  };
+
+  return (
     <motion.div
-      className="absolute inset-0 opacity-30"
-      style={{
-        backgroundImage:
-          "radial-gradient(circle, rgba(255,255,255,0.3) 2px, transparent 2px)",
-        backgroundSize: "30px 30px",
-      }}
-      animate={{ backgroundPosition: ["0 0", "30px 30px"] }}
-      transition={{ duration: 8, repeat: Infinity }}
-    />
-
-    {/* Floating game icons */}
-    {[...Array(6)].map((_, i) => (
+      className="relative overflow-hidden bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white py-10"
+      initial={{ opacity: 0, y: -50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+    >
       <motion.div
-        key={i}
-        className="absolute w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm"
-        initial={{
-          x: Math.random() * 100 - 50 + "%",
-          y: Math.random() * 100 - 50 + "%",
-          opacity: 0.3,
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, rgba(255,255,255,0.3) 2px, transparent 2px)",
+          backgroundSize: "30px 30px",
         }}
-        animate={{
-          y: [0, -20, 0],
-          opacity: [0.3, 0.6, 0.3],
-          rotate: [0, 360],
-        }}
-        transition={{
-          duration: 3 + Math.random() * 5,
-          repeat: Infinity,
-          delay: i * 0.5,
-        }}
+        animate={{ backgroundPosition: ["0 0", "30px 30px"] }}
+        transition={{ duration: 8, repeat: Infinity }}
       />
-    ))}
 
-    <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
-      <motion.div
-        initial={{ opacity: 0, x: -30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.3 }}
-        className="text-center md:text-left"
-      >
-        <h2 className="text-4xl font-extrabold mb-2">Epic Game Marketplace</h2>
-        <p className="text-lg opacity-90 max-w-md">
-          Your premier destination for digital treasures and gaming adventures
-        </p>
-      </motion.div>
-      <div className="flex gap-4">
-        <motion.button
-          className="px-6 py-3 bg-white text-[#6366f1] rounded-full font-bold shadow-lg flex items-center"
-          whileHover={{
-            scale: 1.05,
-            boxShadow: "0 0 15px rgba(255,255,255,0.5)",
+      {/* Floating game icons */}
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm"
+          initial={{
+            x: Math.random() * 100 - 50 + "%",
+            y: Math.random() * 100 - 50 + "%",
+            opacity: 0.3,
           }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <FiTrendingUp className="mr-2" />
-          Trending
-        </motion.button>
-        <motion.button
-          className="px-6 py-3 bg-[#a855f7]/20 border border-white/40 text-white rounded-full font-bold shadow-lg backdrop-blur-sm"
-          whileHover={{
-            scale: 1.05,
-            boxShadow: "0 0 15px rgba(168,85,247,0.5)",
+          animate={{
+            y: [0, -20, 0],
+            opacity: [0.3, 0.6, 0.3],
+            rotate: [0, 360],
           }}
-          whileTap={{ scale: 0.95 }}
+          transition={{
+            duration: 3 + Math.random() * 5,
+            repeat: Infinity,
+            delay: i * 0.5,
+          }}
+        />
+      ))}
+
+      <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+          className="text-center md:text-left"
         >
-          Browse All
-        </motion.button>
+          <h2 className="text-4xl font-extrabold mb-2">Epic Game Marketplace</h2>
+          <p className="text-lg opacity-90 max-w-md">
+            Your premier destination for digital treasures and gaming adventures
+          </p>
+        </motion.div>
+        <div className="flex gap-4">
+          <motion.button
+            className="px-6 py-3 bg-white text-[#6366f1] rounded-full font-bold shadow-lg flex items-center"
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 0 15px rgba(255,255,255,0.5)",
+            }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleScroll}
+          >
+            <FiTrendingUp className="mr-2" />
+            Trending
+          </motion.button>
+          <motion.button
+            className="px-6 py-3 bg-[#a855f7]/20 border border-white/40 text-white rounded-full font-bold shadow-lg backdrop-blur-sm"
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 0 15px rgba(168,85,247,0.5)",
+            }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleScroll}
+          >
+            Browse All
+          </motion.button>
+        </div>
       </div>
-    </div>
-  </motion.div>
-);
+    </motion.div>
+  );
+};
 
 // Enhanced GameCard component with dynamic image URL
 const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
@@ -143,7 +154,7 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
         </motion.button>
 
         {/* Quick add to cart overlay */}
-        <motion.div
+        {/* <motion.div
           className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end justify-center pb-4 px-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: isHovered ? 1 : 0 }}
@@ -160,7 +171,7 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
           >
             <FiShoppingCart className="mr-2" /> Quick Add
           </motion.button>
-        </motion.div>
+        </motion.div> */}
       </div>
 
       <div className="p-4">
@@ -386,17 +397,9 @@ const PromoSection = () => (
           premium game collections.
         </p>
       </div>
-      <motion.button
-        className="px-6 py-2.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-full font-bold shadow-lg flex items-center"
-        whileHover={{
-          scale: 1.05,
-          boxShadow: "0 0 15px rgba(99,102,241,0.5)",
-        }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <FiTag className="mr-2" />
-        View Offers
-      </motion.button>
+      <div className="text-[#a855f7] font-bold text-lg">
+        Scroll down to check out the deals!
+      </div>
     </div>
   </motion.div>
 );
@@ -580,7 +583,7 @@ const ProductListing = () => {
                 <FiTag className="mr-2" />
                 Sell Your Product
               </motion.button>
-              <motion.button
+              {/* <motion.button
                 className="px-6 py-3 bg-gray-800/80 border border-[#6366f1]/30 rounded-full font-bold shadow-lg flex items-center"
                 whileHover={{
                   scale: 1.05,
@@ -590,7 +593,7 @@ const ProductListing = () => {
               >
                 <FiHeart className="mr-2" />
                 Wishlist ({wishlist.length})
-              </motion.button>
+              </motion.button> */}
             </div>
           </div>
         </motion.div>

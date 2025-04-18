@@ -55,14 +55,14 @@ const Navbar = () => {
           </motion.div>
           <div className="flex items-center space-x-4">
             <motion.div className="flex items-center space-x-3" variants={itemVariants}>
-              <motion.a href="/notifications" variants={buttonHoverVariants} className="relative text-white p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors duration-300">
+              {/* <motion.a href="/notifications" variants={buttonHoverVariants} className="relative text-white p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors duration-300">
                 <Bell size={18} />
                 {notificationCount > 0 && <motion.div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">{notificationCount}</motion.div>}
-              </motion.a>
-              <motion.a href="/cart" variants={buttonHoverVariants} className="relative bg-indigo-600 text-white font-bold p-2 rounded-full hover:bg-indigo-700 transition-colors duration-300 flex items-center">
+              </motion.a> */}
+              {/* <motion.a href="/cart" variants={buttonHoverVariants} className="relative bg-indigo-600 text-white font-bold p-2 rounded-full hover:bg-indigo-700 transition-colors duration-300 flex items-center">
                 <ShoppingCart size={18} />
                 {cartCount > 0 && <motion.div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">{cartCount}</motion.div>}
-              </motion.a>
+              </motion.a> */}
               <motion.a href="/products" variants={buttonHoverVariants} className="relative text-white p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors duration-300" onClick={e => { e.preventDefault(); handleProductsClick(); }}>
                 <Package size={18} />
               </motion.a>

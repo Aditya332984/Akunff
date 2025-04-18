@@ -540,7 +540,7 @@ const ProductDetail = () => {
               </div>
 
               <div className="grid grid-cols-1 gap-3">
-                <motion.button
+                {/* <motion.button
                   className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium flex items-center justify-center"
                   whileHover={{
                     scale: 1.02,
@@ -550,7 +550,7 @@ const ProductDetail = () => {
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
                   Add to Cart • ${(product.price * quantity).toFixed(2)}
-                </motion.button>
+                </motion.button> */}
 
                 <motion.button
                   className="w-full py-4 bg-gray-700/40 text-white rounded-xl font-medium border border-gray-600/50"
