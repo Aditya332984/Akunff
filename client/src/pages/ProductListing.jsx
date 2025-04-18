@@ -168,9 +168,9 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
           <h3 className="text-lg font-bold text-white truncate flex-1">
             {product.title}
           </h3>
-          <span className="flex items-center text-yellow-400 text-sm font-medium ml-2">
+          {/* <span className="flex items-center text-yellow-400 text-sm font-medium ml-2">
             <FiStar className="mr-1" /> {rating}
-          </span>
+          </span> */}
         </div>
 
         <p className="text-sm text-gray-400 line-clamp-2 h-10">
@@ -315,7 +315,7 @@ const FilterSidebar = ({ categories, platforms, onFilter }) => {
       </div>
 
       {/* Recommended Games */}
-      <div className="mt-8">
+      {/* <div className="mt-8">
         <h3 className="text-md font-bold mb-4 flex items-center">
           <FiStar className="mr-2 text-yellow-400" />
           <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
@@ -349,7 +349,7 @@ const FilterSidebar = ({ categories, platforms, onFilter }) => {
             </motion.div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Reset Filters button */}
       <motion.button
@@ -412,7 +412,13 @@ const ProductListing = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Sample categories and platforms for filters
+  // Filter state
+  const [activeFilters, setActiveFilters] = useState({
+    priceRange: [0, 100],
+    categories: [],
+    platforms: [],
+  });
+
   const categories = [
     "Action",
     "Adventure",
@@ -427,13 +433,7 @@ const ProductListing = () => {
     const fetchProducts = async () => {
       try {
         const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-        console.log("Fetching products from:", `${API_URL}/product`); // Debug log
         const response = await fetch(`${API_URL}/product`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Response is not JSON");
-        }
         const data = await response.json();
         setProducts(data);
         setFilteredProducts(data);
@@ -447,26 +447,49 @@ const ProductListing = () => {
   }, []);
 
   useEffect(() => {
-    const filtered = products.filter(
-      (product) =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (product.genre && product.genre.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-    setFilteredProducts(filtered);
-  }, [searchTerm, products]);
+    const applyFilters = () => {
+      return products.filter(product => {
+        const matchesSearch = 
+          product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (product.genre && product.genre.toLowerCase().includes(searchTerm.toLowerCase()));
+        
+        const matchesPrice = 
+          product.price >= activeFilters.priceRange[0] &&
+          product.price <= activeFilters.priceRange[1];
+        
+        const matchesCategories = 
+          activeFilters.categories.length === 0 ||
+          activeFilters.categories.some(cat => 
+            product.genre.toLowerCase() === cat.toLowerCase()
+          );
+        
+        const matchesPlatforms = 
+          activeFilters.platforms.length === 0 ||
+          activeFilters.platforms.some(platform => 
+            product.platform.toLowerCase() === platform.toLowerCase()
+          );
+
+        return matchesSearch && matchesPrice && matchesCategories && matchesPlatforms;
+      });
+    };
+
+    setFilteredProducts(applyFilters());
+  }, [searchTerm, products, activeFilters]);
+
+  const handleFilter = (filters) => {
+    setActiveFilters({
+      priceRange: filters.priceRange,
+      categories: filters.categories,
+      platforms: filters.platforms,
+    });
+  };
 
   const handleAddToCart = (product) => {
     setCart([...cart, product]);
-    // Here you would typically call an API to update the cart
   };
 
   const handleAddToWishlist = (product) => {
     setWishlist([...wishlist, product]);
-    // Here you would typically call an API to update the wishlist
-  };
-
-  const handleFilter = (filters) => {
-    console.log("Applying filters:", filters);
   };
 
   if (loading) {
@@ -492,6 +515,7 @@ const ProductListing = () => {
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white relative overflow-hidden">
+      {/* Background elements */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -503,7 +527,7 @@ const ProductListing = () => {
         transition={{ duration: 5, repeat: Infinity }}
       />
 
-      {/* Animated particles in background */}
+      {/* Animated particles */}
       {[...Array(20)].map((_, i) => (
         <motion.div
           key={i}
@@ -529,12 +553,8 @@ const ProductListing = () => {
       <MarketplaceBanner />
 
       <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
-        <motion.div
-          className="mb-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-        >
+        {/* Search and Actions Section */}
+        <motion.div className="mb-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="relative w-full md:w-1/2">
               <FiFilter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -578,12 +598,8 @@ const ProductListing = () => {
         <PromoSection />
 
         <div className="flex flex-col lg:flex-row gap-8">
-          <motion.div
-            className="lg:w-3/4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          {/* Main Product Grid */}
+          <motion.div className="lg:w-3/4">
             <div className="bg-gray-900/90 rounded-2xl p-8 border border-[#6366f1]/30 shadow-xl">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent flex items-center">
@@ -635,42 +651,13 @@ const ProductListing = () => {
                   </motion.button>
                 </motion.div>
               )}
-
-              {filteredProducts.length > 0 && (
-                <div className="flex justify-center mt-10">
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((page) => (
-                      <motion.button
-                        key={page}
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                          page === 1
-                            ? "bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white"
-                            : "bg-gray-800 text-gray-400"
-                        }`}
-                        whileHover={{
-                          scale: 1.1,
-                          backgroundColor:
-                            page !== 1 ? "rgba(99,102,241,0.2)" : undefined,
-                        }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        {page}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </motion.div>
 
+          {/* Sidebar Section */}
           <div className="lg:w-1/4">
             {user && (
-              <motion.div
-                className="mb-8"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
+              <motion.div className="mb-8">
                 <CartSummary cart={cart} />
               </motion.div>
             )}
@@ -689,3 +676,5 @@ const ProductListing = () => {
 };
 
 export default ProductListing;
+
+
