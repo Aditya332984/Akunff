@@ -118,7 +118,7 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
     >
       <div className="relative h-52 overflow-hidden">
         <img
-          src={`${BASE_URL}${product.image}`}
+          src={product.image?.url||"api/placeholder/400/300"}
           alt={product.title}
           className="w-full h-full object-cover transition-transform duration-700"
           style={{ transform: isHovered ? "scale(1.1)" : "scale(1)" }}

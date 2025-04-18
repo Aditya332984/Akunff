@@ -26,12 +26,11 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [wishlist, setWishlist] = useState(false);
   const { user, token } = useAuth();
-  const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3000";
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        console.log("Fetching product from:", `${import.meta.env.VITE_API_URL}/product/${id}`); // Debug log
+        console.log("Fetching product from:", `${import.meta.env.VITE_API_URL}/product/${id}`);
         const response = await fetch(`${import.meta.env.VITE_API_URL}/product/${id}`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get("content-type");
@@ -39,6 +38,7 @@ const ProductDetail = () => {
           throw new Error("Response is not JSON");
         }
         const data = await response.json();
+        console.log("Product data received:", data); // Debug log to check image URL
         setProduct(data);
         setLoading(false);
       } catch (error) {
@@ -49,7 +49,7 @@ const ProductDetail = () => {
 
     const fetchReviews = async () => {
       try {
-        console.log("Fetching reviews from:", `${import.meta.env.VITE_API_URL}/reviews/${id}`); // Debug log
+        console.log("Fetching reviews from:", `${import.meta.env.VITE_API_URL}/reviews/${id}`);
         const response = await fetch(`${import.meta.env.VITE_API_URL}/reviews/${id}`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get("content-type");
@@ -65,7 +65,7 @@ const ProductDetail = () => {
 
     fetchProduct();
     fetchReviews();
-  }, [id, import.meta.env.VITE_API_URL]);
+  }, [id]);
 
   const handleAddReview = async () => {
     if (!user || !token) {
@@ -85,13 +85,13 @@ const ProductDetail = () => {
           productId: id,
           text: newReview.text,
           rating: newReview.rating,
-          userId: user.id, // Include the user ID
+          userId: user.id,
         }),
       });
 
       const responseData = await response.json();
       if (response.ok) {
-        setNewReview({ text: "", rating: 0 }); // Fixed syntax here
+        setNewReview({ text: "", rating: 0 });
         const updatedReviews = await fetch(`${import.meta.env.VITE_API_URL}/reviews/${id}`);
         const data = await updatedReviews.json();
         setReviews(data);
@@ -153,11 +153,11 @@ const ProductDetail = () => {
     );
   }
 
-  const productImages = [
-    `${BASE_URL}${product.image}`,
-    `${BASE_URL}${product.image}`,
-    `${BASE_URL}${product.image}`,
-  ];
+  // Create array of product images - use full Cloudinary URL
+  // Assuming product.image contains the full Cloudinary URL
+  const productImages = product.image?.url ? 
+    [product.image?.url, product.image?.url, product.image?.url] : 
+    ['/api/placeholder/400/320', '/api/placeholder/400/320', '/api/placeholder/400/320'];
 
   const avgRating = reviews.length
     ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
