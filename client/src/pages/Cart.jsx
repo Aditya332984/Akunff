@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
-import { gameCards } from '../components/Cards'; // Import gameCards array
-import axios from 'axios';
 import Navbar from '../components/Navbar'; // Import Navbar
 import Footer from '../components/Footer'; // Import Footer
 
@@ -11,19 +9,19 @@ const mockCartItems = [
     _id: '1',
     name: 'Mobile Legends',
     price: 1.99,
-    image: gameCards.find(game => game.title === 'Mobile Legends').image
+    image: 'https://images7.alphacoders.com/116/1167752.jpg'
   },
   {
     _id: '2',
     name: 'Steam Wallet',
     price: 5.00,
-    image: gameCards.find(game => game.title === 'Steam Wallet').image
+    image: 'https://www.lifewire.com/thmb/LjRtKhZ1C3ZBs0zPRY96Ip2Sx8g=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/005-c6f34c70111143d89ee02ea246e81a1b.jpg'
   },
   {
     _id: '3',
     name: 'PUBG Mobile',
     price: 2.99,
-    image: gameCards.find(game => game.title === 'PUBG Mobile').image
+    image: 'https://m.media-amazon.com/images/I/81bRacT8elL._AC_UF1000,1000_QL80_.jpg'
   }
 ];
 

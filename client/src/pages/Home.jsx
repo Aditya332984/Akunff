@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Banner from '../components/Banner';
@@ -456,13 +456,14 @@ const Home = () => {
                 >
                   Free Fire Deals 🔥
                 </motion.h2>
+                <Link to="/products">
                 <motion.button
                   className="text-orange-400 hover:text-orange-300 text-sm font-medium self-end sm:self-center"
                   whileHover={{ x: 5, scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   View All →
-                </motion.button>
+                </motion.button></Link>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
@@ -500,6 +501,7 @@ const Home = () => {
                       </div>
                       <div className="mt-2">
                         <p className="text-sm sm:text-md font-semibold text-white mb-1 sm:mb-2">{deal.price}</p>
+                        <Link to="/products">
                         <motion.button
                           className={`w-full py-2 text-sm sm:text-base text-white font-semibold rounded-lg ${deal.buttonColor}`}
                           whileHover={{
@@ -509,7 +511,7 @@ const Home = () => {
                           whileTap={{ scale: 0.98 }}
                         >
                           {deal.buttonText}
-                        </motion.button>
+                        </motion.button></Link>
                       </div>
                     </div>
                   </motion.div>
