@@ -12,6 +12,7 @@ const Navbar = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { scrollY } = useScroll();
   const { cartCount, notificationCount, fetchCartData } = useCart();
   const navigate = useNavigate();
@@ -37,32 +38,65 @@ const Navbar = () => {
   const handleProductsClick = () => navigate('/products');
   const handleChatsClick = () => navigate('/chats');
 
+  const platforms = ['PC', 'PlayStation', 'Xbox', 'Nintendo', 'Mobile'];
+
+  const handleSearch = () => {
+    if (!searchTerm.trim()) return;
+
+    const lowerSearch = searchTerm.toLowerCase();
+    const matchedPlatform = platforms.find(platform => 
+      lowerSearch.includes(platform.toLowerCase())
+    );
+
+    if (matchedPlatform) {
+      navigate(`/products?platform=${encodeURIComponent(matchedPlatform)}`);
+    } else {
+      navigate(`/products?q=${encodeURIComponent(searchTerm)}`);
+    }
+
+    setSearchTerm('');
+    setIsMenuOpen(false); // Close mobile menu if open
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   return (
     <motion.div initial="hidden" animate="visible" variants={navbarVariants} className="sticky top-0 z-50 w-full">
       <motion.nav className="flex items-center p-4 bg-gray-900 shadow-lg border-b border-gray-800 backdrop-blur-sm" style={{ backgroundColor: navbarBackground, height: navbarHeight, padding: navbarPadding }} transition={{ duration: 0.3 }}>
         <div className="container mx-auto flex items-center justify-between">
           <motion.div className="flex items-center" style={{ scale: logoScale }}>
-            <motion.h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-400 to-indigo-600 cursor-pointer" whileHover={{ backgroundPosition: "100% 50%" }} transition={{ duration: 0.8 }} onClick={() => navigate('/')} >
+            <motion.h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-400 to-indigo-600 cursor-pointer" whileHover={{ backgroundPosition: "100% 50%" }} transition={{ duration: 0.8 }} onClick={() => navigate('/')}>
               Aknuff
             </motion.h1>
           </motion.div>
           <motion.div className="hidden md:block md:w-2/5 lg:w-1/2 xl:w-1/3 mx-4" variants={itemVariants}>
             <motion.div className="relative" variants={searchVariants} animate={isSearchFocused ? "focused" : "initial"}>
               <div className="absolute inset-y-0 left-3 flex items-center"><Search className="h-4 w-4 text-gray-400" /></div>
-              <input type="text" placeholder="Search for games, gift cards..." className="w-full pl-10 pr-20 py-2 rounded-full bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" onFocus={() => setIsSearchFocused(true)} onBlur={() => setIsSearchFocused(false)} />
-              <motion.button variants={buttonHoverVariants} className="absolute right-0 top-0 h-full px-4 rounded-r-full bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors duration-300">Search</motion.button>
+              <input 
+                type="text" 
+                placeholder="Search for games, gift cards..." 
+                className="w-full pl-10 pr-20 py-2 rounded-full bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)} 
+                onBlur={() => setIsSearchFocused(false)}
+                onKeyPress={handleKeyPress}
+              />
+              <motion.button 
+                variants={buttonHoverVariants} 
+                className="absolute right-0 top-0 h-full px-4 rounded-r-full bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors duration-300"
+                onClick={handleSearch}
+              >
+                Search
+              </motion.button>
             </motion.div>
           </motion.div>
           <div className="flex items-center space-x-4">
             <motion.div className="flex items-center space-x-3" variants={itemVariants}>
-              {/* <motion.a href="/notifications" variants={buttonHoverVariants} className="relative text-white p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors duration-300">
-                <Bell size={18} />
-                {notificationCount > 0 && <motion.div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">{notificationCount}</motion.div>}
-              </motion.a> */}
-              {/* <motion.a href="/cart" variants={buttonHoverVariants} className="relative bg-indigo-600 text-white font-bold p-2 rounded-full hover:bg-indigo-700 transition-colors duration-300 flex items-center">
-                <ShoppingCart size={18} />
-                {cartCount > 0 && <motion.div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">{cartCount}</motion.div>}
-              </motion.a> */}
               <motion.a href="/products" variants={buttonHoverVariants} className="relative text-white p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors duration-300" onClick={e => { e.preventDefault(); handleProductsClick(); }}>
                 <Package size={18} />
               </motion.a>
@@ -102,8 +136,21 @@ const Navbar = () => {
       <motion.div className="md:hidden bg-gray-900 px-4 pb-3 border-b border-gray-800">
         <div className="relative">
           <div className="absolute inset-y-0 left-3 flex items-center"><Search className="h-4 w-4 text-gray-400" /></div>
-          <input type="text" placeholder="Search for games, gift cards..." className="w-full pl-10 pr-20 py-2 rounded-full bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
-          <motion.button variants={buttonHoverVariants} className="absolute right-0 top-0 h-full px-4 rounded-r-full bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors duration-300">Search</motion.button>
+          <input 
+            type="text" 
+            placeholder="Search for games, gift cards..." 
+            className="w-full pl-10 pr-20 py-2 rounded-full bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={handleKeyPress}
+          />
+          <motion.button 
+            variants={buttonHoverVariants} 
+            className="absolute right-0 top-0 h-full px-4 rounded-r-full bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors duration-300"
+            onClick={handleSearch}
+          >
+            Search
+          </motion.button>
         </div>
       </motion.div>
       <AnimatePresence>
