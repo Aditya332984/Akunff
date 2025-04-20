@@ -8,10 +8,8 @@ import {
   Share2,
   Heart,
   MessageCircle,
-  ShoppingCart,
   Shield,
   Clock,
-  ArrowLeft,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -176,6 +174,13 @@ const ProductDetail = () => {
 
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center text-sm text-gray-400">
+          <button
+            onClick={() => navigate(-1)}
+            className="hover:text-blue-400 transition-colors mr-2"
+          >
+            Back
+          </button>
+          <span className="mx-2">/</span>
           <button
             onClick={() => navigate("/")}
             className="hover:text-blue-400 transition-colors"

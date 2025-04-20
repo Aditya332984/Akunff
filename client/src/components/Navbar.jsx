@@ -69,7 +69,9 @@ const Navbar = () => {
       <motion.nav className="flex items-center p-4 bg-gray-900 shadow-lg border-b border-gray-800 backdrop-blur-sm" style={{ backgroundColor: navbarBackground, height: navbarHeight, padding: navbarPadding }} transition={{ duration: 0.3 }}>
         <div className="container mx-auto flex items-center justify-between">
           <motion.div className="flex items-center" style={{ scale: logoScale }}>
-            <motion.h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-400 to-indigo-600 cursor-pointer" whileHover={{ backgroundPosition: "100% 50%" }} transition={{ duration: 0.8 }} onClick={() => navigate('/')}>
+            <motion.h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-400 to-indigo-600 cursor-pointer" whileHover={{ backgroundPosition: "100% 50%" }} transition={{ duration: 0.8 }} onClick={() => {navigate('/')
+              window.location.reload(true);
+            }}>
               Aknuff
             </motion.h1>
           </motion.div>
