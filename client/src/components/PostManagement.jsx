@@ -275,7 +275,7 @@ function PostManagement({ compact = false }) {
             <input
               type="text"
               placeholder="Search posts by title, description or author..."
-              className="block w-full pl-12 pr-4 py-3.5 border border-indigo-100 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 bg-indigo-50/50 transition-all duration-200 shadow-sm"
+              className="block text-black w-full pl-12 pr-4 py-3.5 border border-indigo-100 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 bg-indigo-50/50 transition-all duration-200 shadow-sm"
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);

@@ -86,7 +86,7 @@ function UserManagement({ compact = false }) {
             <input
               type="text"
               placeholder="Search users..."
-              className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="block text-black w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-blue-500 focus:border-blue-500"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -139,9 +139,9 @@ function UserManagement({ compact = false }) {
 
       {compact && users.length > 5 && (
         <div className="p-4 border-t border-gray-100 text-center">
-          <a href="#" className="text-blue-600 hover:text-blue-800 font-medium">
+          {/* <a href="#" className="text-blue-600 hover:text-blue-800 font-medium">
             View all {users.length} users
-          </a>
+          </a> */}
         </div>
       )}
 
