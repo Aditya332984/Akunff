@@ -72,7 +72,7 @@ const Navbar = () => {
             <motion.h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-400 to-indigo-600 cursor-pointer" whileHover={{ backgroundPosition: "100% 50%" }} transition={{ duration: 0.8 }} onClick={() => {navigate('/')
               window.location.reload(true);
             }}>
-              Aknuff
+              Akunff
             </motion.h1>
           </motion.div>
           <motion.div className="hidden md:block md:w-2/5 lg:w-1/2 xl:w-1/3 mx-4" variants={itemVariants}>
