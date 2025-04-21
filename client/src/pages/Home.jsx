@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import Banner from '../components/Banner';
 import Cards from '../components/Cards';
 import { Link } from 'react-router-dom';
+import CategoryNav from '../components/CategoryNav';
 
 // New Featured Deals data (inspired by Itemku.com)
 const featuredDeals = [
@@ -219,6 +220,7 @@ const Home = () => {
       </div>
 
       <Navbar onSearchClick={() => setIsSearchOpen(true)} />
+      <CategoryNav categories={categories} />
 
       {/* Search Overlay */}
       {isSearchOpen && (
