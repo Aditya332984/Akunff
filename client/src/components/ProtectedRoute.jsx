@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children, requiredRole }) => {
-  const { user, role, loading } = useAuth();
+  const { user, role, loading, logout } = useAuth();
 
   // Wait until loading is complete to avoid redirect flicker
   if (loading) {
@@ -13,6 +13,31 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   // If user is not logged in, redirect to login
   if (!user || !role) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Check if token is expired
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const decoded = JSON.parse(jsonPayload);
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (decoded.exp && decoded.exp < currentTime) {
+        logout();
+        return <Navigate to="/login" replace />;
+      }
+    } catch (error) {
+      console.error('Token decoding error:', error);
+      logout();
+      return <Navigate to="/login" replace />;
+    }
   }
 
   // If user's role doesn't match the required role, redirect to appropriate page

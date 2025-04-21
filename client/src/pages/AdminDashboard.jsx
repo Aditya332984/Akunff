@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { HiUsers, HiDocumentText, HiChartBar, HiCurrencyDollar } from 'react-icons/hi';
+import { HiUsers, HiDocumentText, HiChartBar, HiCurrencyDollar, HiLogout } from 'react-icons/hi';
 import AdminStats from '../components/AdminStats';
 import UserManagement from '../components/UserManagement';
 import PostManagement from '../components/PostManagement';
+import { AuthContext } from '../context/AuthContext';
 
 // Animation for sections that come into view
 const SectionAnimation = ({ children, delay = 0 }) => {
@@ -42,6 +43,7 @@ const SectionAnimation = ({ children, delay = 0 }) => {
 function AdminDashboard() {
   const [stats, setStats] = useState({ users: 0, posts: 0, revenue: 0 });
   const [activeTab, setActiveTab] = useState('overview');
+  const { logout } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -122,24 +124,35 @@ function AdminDashboard() {
 
       {/* Header Section */}
       <div className="bg-gradient-to-r from-[#1e3a8a] to-[#3b82f6] shadow-lg relative z-10">
-        <div className="container mx-auto px-6 py-8">
-          <motion.h1 
-            className="text-4xl font-extrabold"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            style={{ textShadow: "0 0 15px rgba(255, 255, 255, 0.5)" }}
+        <div className="container mx-auto px-6 py-8 flex justify-between items-center">
+          <div>
+            <motion.h1 
+              className="text-4xl font-extrabold"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              style={{ textShadow: "0 0 15px rgba(255, 255, 255, 0.5)" }}
+            >
+              Admin Dashboard
+            </motion.h1>
+            <motion.p 
+              className="mt-2 text-indigo-200"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Manage your gaming platform's users and content
+            </motion.p>
+          </div>
+          <motion.button
+            onClick={logout}
+            className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            Admin Dashboard
-          </motion.h1>
-          <motion.p 
-            className="mt-2 text-indigo-200"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Manage your gaming platform's users and content
-          </motion.p>
+            <HiLogout className="w-5 h-5 mr-2" />
+            Logout
+          </motion.button>
         </div>
       </div>
       
