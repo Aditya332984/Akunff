@@ -26,11 +26,11 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/products" element={<ProductListing />} />
-          <Route path="/elite-pass-season-15/products" element={<ProductListing />} />
-          <Route path="/ultimate-bundle/products" element={<ProductListing />} />
-          <Route path="/premium-skins-pack/products" element={<ProductListing />} />
-          <Route path="/booster-pack/products" element={<ProductListing />} />
-          <Route path="/diamonds/products" element={<ProductListing />} />
+          <Route path="/garena-free-fire-elite-pass-akun" element={<ProductListing />} />
+          <Route path="/garena-free-fire-get-skin-emotes-akun" element={<ProductListing />} />
+          <Route path="/redeem-kode-free-fire" element={<ProductListing />} />
+          <Route path="/free-fire-server-akunk" element={<ProductListing />} />
+          <Route path="/garena-diamonds-free-fire-max" element={<ProductListing />} />
           <Route path="/mobile-legends" element={<ProductListing />} />
           <Route path="/steam-wallet" element={<ProductListing />} />
           <Route path="/pubg-mobile" element={<ProductListing />} />
