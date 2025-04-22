@@ -29,7 +29,7 @@ const App = () => {
           <Route path="/garena-free-fire-elite-pass-akun" element={<ProductListing />} />
           <Route path="/garena-free-fire-get-skin-emotes-akun" element={<ProductListing />} />
           <Route path="/redeem-kode-free-fire" element={<ProductListing />} />
-          <Route path="/free-fire-server-akunk" element={<ProductListing />} />
+          <Route path="/free-fire-server-akun" element={<ProductListing />} />
           <Route path="/garena-diamonds-free-fire-max" element={<ProductListing />} />
           <Route path="/mobile-legends" element={<ProductListing />} />
           <Route path="/steam-wallet" element={<ProductListing />} />

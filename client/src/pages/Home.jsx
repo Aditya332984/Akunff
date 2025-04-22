@@ -463,7 +463,7 @@ const Home = () => {
                     linkUrl = "/redeem-kode-free-fire";
                   }
                   else if (deal.title === "Free Fire Server") {
-                    linkUrl = "/free-fire-server-akunk";
+                    linkUrl = "/free-fire-server-akun";
                   }
                   else if (deal.title === "5000 Diamonds") {
                     linkUrl = "/garena-diamonds-free-fire-max";
