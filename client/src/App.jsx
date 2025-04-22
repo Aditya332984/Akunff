@@ -28,7 +28,7 @@ const App = () => {
           <Route path="/products" element={<ProductListing />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route
-            path="/sell"
+            path="/sell-accounts"
             element={
               <ProtectedRoute requiredRole="user">
                 <ProductSelling />
