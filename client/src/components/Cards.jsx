@@ -10,7 +10,7 @@ export const gameCards = [
   { id: 4, title: 'PlayStation Store', image: 'https://blog.playstation.com/tachyon/2024/12/07644a42b4986fd0982a5f830ddbc17d741cbb21.png?resize=1088%2C612&crop_strategy=smart', price: 'From $10.00', category: 'Console', discount: '5% OFF', path: '/playstation-store' },
   { id: 5, title: 'Garena Free Fire Accounts', image: 'https://wallpapers.com/images/featured/free-fire-4k-obod7src8jkhnoo6.jpg', price: 'From $0.99', category: 'Mobile Games', trending: true, path: '/garena-free-fire-accounts' },
   { id: 6, title: 'Nintendo eShop', image: 'https://images7.alphacoders.com/867/867557.jpg', price: 'From $15.00', category: 'Console', discount: '8% OFF', path: '/nintendo-eshop' },
-  { id: 7, title: 'Valorant', image: 'https://wallpapers.com/images/featured/valorant-305kescxw5dpup7y.jpg', price: 'From $4.99', category: 'PC Games', trending: true, path: '/valorant' },
+  { id: 7, title: 'Valorant', image: 'https://wallpapers.com/images/featured/valorant-305kescxw5dpup7y.jpg', price: 'From $4.99', category: 'PC Games', trending: true, path: '/valorant-account-for-sale' },
   { id: 8, title: 'Roblox', image: 'https://wallpapercat.com/w/full/4/f/e/11067-3200x1680-desktop-hd-roblox-background.jpg', price: 'From $3.00', category: 'PC Games', discount: '12% OFF', path: '/roblox' },
 ];
 
