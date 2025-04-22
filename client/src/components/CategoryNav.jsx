@@ -40,7 +40,7 @@ const CategoryNav = () => {
           )}
         </div>
         <Link
-          to="/sell"
+          to="/sell-accounts"
           className="px-3 py-2 text-sm font-medium hover:bg-gray-800 rounded transition-colors duration-300"
         >
           Sell Accounts
