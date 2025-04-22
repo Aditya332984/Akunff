@@ -35,10 +35,14 @@ const App = () => {
           <Route path="/steam-wallet" element={<ProductListing />} />
           <Route path="/pubg-mobile" element={<ProductListing />} />
           <Route path="/playstation-store" element={<ProductListing />} />
-          <Route path="garena-free-fire-accounts" element={<ProductListing />} />
+          <Route path="/garena-free-fire-accounts" element={<ProductListing />} />
           <Route path="/valorant" element={<ProductListing />} />
           <Route path="/roblox" element={<ProductListing />} />
           <Route path="/nintendo-eshop" element={<ProductListing />} />
+          
+          {/* Dynamic route for search terms - this will catch any path */}
+          <Route path="/:searchTerm" element={<ProductListing />} />
+          
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route
             path="/sell-accounts"
@@ -92,7 +96,6 @@ const App = () => {
           <Route
             path="/settings"
             element={
-
               <ProtectedRoute requiredRole="user">
                 <Settings/>
               </ProtectedRoute>

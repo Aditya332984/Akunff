@@ -43,15 +43,22 @@ const Navbar = () => {
   const handleSearch = () => {
     if (!searchTerm.trim()) return;
 
+    // Convert search term to URL-friendly format (replace spaces with hyphens and lowercase)
+    const urlFriendlySearchTerm = searchTerm.trim().toLowerCase().replace(/\s+/g, '-');
+
+    // Check if the search term matches a platform
     const lowerSearch = searchTerm.toLowerCase();
     const matchedPlatform = platforms.find(platform => 
       lowerSearch.includes(platform.toLowerCase())
     );
 
     if (matchedPlatform) {
-      navigate(`/products?platform=${encodeURIComponent(matchedPlatform)}`);
+      // For platform-specific searches, still use the hyphenated format in URL
+      const platformUrl = matchedPlatform.toLowerCase().replace(/\s+/g, '-');
+      navigate(`/${platformUrl}`);
     } else {
-      navigate(`/products?q=${encodeURIComponent(searchTerm)}`);
+      // For general searches, use the hyphenated format in URL
+      navigate(`/${urlFriendlySearchTerm}`);
     }
 
     setSearchTerm('');
