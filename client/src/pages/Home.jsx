@@ -1,46 +1,50 @@
-import React, { useEffect, useState } from 'react';
-import { motion, useAnimation } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import Banner from '../components/Banner';
-import Cards from '../components/Cards';
-import { Link } from 'react-router-dom';
-import CategoryNav from '../components/CategoryNav';
+import React, { useEffect, useState } from "react";
+import { motion, useAnimation } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import Banner from "../components/Banner";
+import Cards from "../components/Cards";
+import { Link } from "react-router-dom";
+import CategoryNav from "../components/CategoryNav";
 
 // New Featured Deals data (inspired by Itemku.com)
 const featuredDeals = [
   {
     id: 1,
-    title: 'The Hunt',
-    tag: 'Special Event',
-    buttonText: 'Buy Robux',
-    buttonColor: 'bg-gradient-to-r from-[#1e3a8a] to-[#3b82f6]',
-    image: 'https://imgop.itemku.com/?url=https%3A%2F%2Fd1x91p7vw3vuq8.cloudfront.net%2Fplaceholder%2F2025313%2Fal0mwe8dxtbqah7cy3f3d.png&w=1033&q=75',
+    title: "The Hunt",
+    tag: "Special Event",
+    buttonText: "Buy Robux",
+    buttonColor: "bg-gradient-to-r from-[#1e3a8a] to-[#3b82f6]",
+    image:
+      "https://imgop.itemku.com/?url=https%3A%2F%2Fd1x91p7vw3vuq8.cloudfront.net%2Fplaceholder%2F2025313%2Fal0mwe8dxtbqah7cy3f3d.png&w=1033&q=75",
   },
   {
     id: 2,
-    title: 'Growtopia',
-    tag: 'Bestseller',
-    buttonText: 'Unlock Items',
-    buttonColor: 'bg-gradient-to-r from-[#16a34a] to-[#22c55e]',
-    image: 'https://imgop.itemku.com/?url=https%3A%2F%2Fd1x91p7vw3vuq8.cloudfront.net%2Fplaceholder%2F2025311%2Fdxdj6ttiwswfsperxwp18.png&w=1033&q=75', 
+    title: "Growtopia",
+    tag: "Bestseller",
+    buttonText: "Unlock Items",
+    buttonColor: "bg-gradient-to-r from-[#16a34a] to-[#22c55e]",
+    image:
+      "https://imgop.itemku.com/?url=https%3A%2F%2Fd1x91p7vw3vuq8.cloudfront.net%2Fplaceholder%2F2025311%2Fdxdj6ttiwswfsperxwp18.png&w=1033&q=75",
   },
   {
     id: 3,
-    title: 'Fisch',
-    tag: 'Time to Re-Fish',
-    buttonText: 'Get Started',
-    buttonColor: 'bg-gradient-to-r from-[#7c3aed] to-[#a855f7]',
-    image: 'https://imgop.itemku.com/?url=https%3A%2F%2Fd1x91p7vw3vuq8.cloudfront.net%2Fplaceholder%2F2025226%2F8wet60iakev8d4zthj3dl8.png&w=1033&q=75', 
+    title: "Fisch",
+    tag: "Time to Re-Fish",
+    buttonText: "Get Started",
+    buttonColor: "bg-gradient-to-r from-[#7c3aed] to-[#a855f7]",
+    image:
+      "https://imgop.itemku.com/?url=https%3A%2F%2Fd1x91p7vw3vuq8.cloudfront.net%2Fplaceholder%2F2025226%2F8wet60iakev8d4zthj3dl8.png&w=1033&q=75",
   },
   {
     id: 4,
-    title: 'Spring Sale',
-    tag: 'Explore Deals',
-    buttonText: 'Shop Now',
-    buttonColor: 'bg-gradient-to-r from-[#db2777] to-[#ec4899]',
-    image: 'https://imgop.itemku.com/?url=https%3A%2F%2Fd1x91p7vw3vuq8.cloudfront.net%2Fplaceholder%2F2025312%2Fmrzstjd8d17hoslhqmcwm.png&w=1033&q=75', 
+    title: "Spring Sale",
+    tag: "Explore Deals",
+    buttonText: "Shop Now",
+    buttonColor: "bg-gradient-to-r from-[#db2777] to-[#ec4899]",
+    image:
+      "https://imgop.itemku.com/?url=https%3A%2F%2Fd1x91p7vw3vuq8.cloudfront.net%2Fplaceholder%2F2025312%2Fmrzstjd8d17hoslhqmcwm.png&w=1033&q=75",
   },
 ];
 
@@ -48,79 +52,102 @@ const featuredDeals = [
 const freeFireDeals = [
   {
     id: 1,
-    title: 'Elite Pass Season 15',
-    description: 'Unlock exclusive rewards and missions',
-    price: '$9.99',
-    discount: '15% Off',
-    image: 'https://i.pinimg.com/736x/5e/9d/85/5e9d852c2e85e43d2a59545eb77da902.jpg', 
-    buttonText: 'Buy Now',
-    buttonColor: 'bg-gradient-to-r from-[#ff4d4d] to-[#ff8c1a]',
+    title: "Elite Pass Season 15",
+    description: "Unlock exclusive rewards and missions",
+    price: "$9.99",
+    discount: "15% Off",
+    image:
+      "https://i.pinimg.com/736x/5e/9d/85/5e9d852c2e85e43d2a59545eb77da902.jpg",
+    buttonText: "Buy Now",
+    buttonColor: "bg-gradient-to-r from-[#ff4d4d] to-[#ff8c1a]",
   },
   {
     id: 2,
-    title: '5000 Diamonds',
-    description: 'Boost your in-game purchases',
-    price: '$29.99',
-    discount: '10% Off',
-    image: 'https://wallpaperaccess.com/full/10807853.jpg', 
-    buttonText: 'Get Diamonds',
-    buttonColor: 'bg-gradient-to-r from-[#ffcc00] to-[#ff6b6b]',
+    title: "5000 Diamonds",
+    description: "Boost your in-game purchases",
+    price: "$29.99",
+    discount: "10% Off",
+    image: "https://wallpaperaccess.com/full/10807853.jpg",
+    buttonText: "Get Diamonds",
+    buttonColor: "bg-gradient-to-r from-[#ffcc00] to-[#ff6b6b]",
   },
   {
     id: 3,
-    title: 'Ultimate Bundle',
-    description: 'Get skins, emotes, and more',
-    price: '$19.99',
-    discount: '20% Off',
-    image: 'https://i.ytimg.com/vi/rVkGtcX4Bjc/maxresdefault.jpg', 
-    buttonText: 'Claim Bundle',
-    buttonColor: 'bg-gradient-to-r from-[#4da8da] to-[#1e90ff]',
+    title: "Ultimate Bundle",
+    description: "Get skins, emotes, and more",
+    price: "$19.99",
+    discount: "20% Off",
+    image: "https://i.ytimg.com/vi/rVkGtcX4Bjc/maxresdefault.jpg",
+    buttonText: "Claim Bundle",
+    buttonColor: "bg-gradient-to-r from-[#4da8da] to-[#1e90ff]",
   },
   {
     id: 4,
-    title: 'Premium Skins Pack',
-    description: 'Stand out with epic skins',
-    price: '$14.99',
-    discount: '25% Off',
-    image: 'https://i.ytimg.com/vi/IiwS1aRwKnY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCEzngntkKHi881Grqapui_llbEqg', 
-    buttonText: 'Unlock Skins',
-    buttonColor: 'bg-gradient-to-r from-[#da70d6] to-[#ff69b4]',
+    title: "Premium Skins Pack",
+    description: "Stand out with epic skins",
+    price: "$14.99",
+    discount: "25% Off",
+    image:
+      "https://i.ytimg.com/vi/IiwS1aRwKnY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCEzngntkKHi881Grqapui_llbEqg",
+    buttonText: "Unlock Skins",
+    buttonColor: "bg-gradient-to-r from-[#da70d6] to-[#ff69b4]",
   },
   {
     id: 5,
-    title: 'Booster Pack',
-    description: 'Double XP and rewards for 7 days',
-    price: '$7.99',
-    discount: '10% Off',
-    image: 'https://images.hindustantimes.com/tech/img/2022/02/12/1600x900/2fcc5c02713a4849fc70377839279331jpg_1629424017477_1644667977491.jpg', 
-    buttonText: 'Activate Boost',
-    buttonColor: 'bg-gradient-to-r from-[#32cd32] to-[#9acd32]',
+    title: "Booster Pack",
+    description: "Double XP and rewards for 7 days",
+    price: "$7.99",
+    discount: "10% Off",
+    image:
+      "https://images.hindustantimes.com/tech/img/2022/02/12/1600x900/2fcc5c02713a4849fc70377839279331jpg_1629424017477_1644667977491.jpg",
+    buttonText: "Activate Boost",
+    buttonColor: "bg-gradient-to-r from-[#32cd32] to-[#9acd32]",
   },
 ];
 
 // Stats data
 const stats = [
-  { id: 1, label: 'Active Users', value: '2.5M+', icon: 'users' },
-  { id: 2, label: 'Transactions', value: '10M+', icon: 'credit-card' },
-  { id: 3, label: 'Games', value: '500+', icon: 'gamepad' },
-  { id: 4, label: 'Satisfaction', value: '99%', icon: 'star' }
+  { id: 1, label: "Active Users", value: "2.5M+", icon: "users" },
+  { id: 2, label: "Transactions", value: "10M+", icon: "credit-card" },
+  { id: 3, label: "Games", value: "500+", icon: "gamepad" },
+  { id: 4, label: "Satisfaction", value: "99%", icon: "star" },
 ];
 
 // How it works steps
 const steps = [
-  { id: 1, title: 'Choose a Game', description: 'Browse our wide selection of games and digital products', icon: 'game-controller' },
-  { id: 2, title: 'Select Package', description: 'Pick the top-up amount or item you need', icon: 'package' },
-  { id: 3, title: 'Make Payment', description: 'Choose from multiple payment methods', icon: 'credit-card' },
-  { id: 4, title: 'Get Your Items', description: 'Receive your purchase instantly in your game', icon: 'gift' }
+  {
+    id: 1,
+    title: "Choose a Game",
+    description: "Browse our wide selection of games and digital products",
+    icon: "game-controller",
+  },
+  {
+    id: 2,
+    title: "Select Package",
+    description: "Pick the top-up amount or item you need",
+    icon: "package",
+  },
+  {
+    id: 3,
+    title: "Make Payment",
+    description: "Choose from multiple payment methods",
+    icon: "credit-card",
+  },
+  {
+    id: 4,
+    title: "Get Your Items",
+    description: "Receive your purchase instantly in your game",
+    icon: "gift",
+  },
 ];
 
 // Popular categories (excluding Game Credits)
 const categories = [
-  { id: 2, name: 'Game Items', icon: 'sword' },
-  { id: 3, name: 'Gift Cards', icon: 'gift-card' },
-  { id: 4, name: 'Subscriptions', icon: 'calendar' },
-  { id: 5, name: 'Game Accounts', icon: 'user' },
-  { id: 6, name: 'Game Boosting', icon: 'trending-up' }
+  { id: 2, name: "Game Items", icon: "sword" },
+  { id: 3, name: "Gift Cards", icon: "gift-card" },
+  { id: 4, name: "Subscriptions", icon: "calendar" },
+  { id: 5, name: "Game Accounts", icon: "user" },
+  { id: 6, name: "Game Boosting", icon: "trending-up" },
 ];
 
 // Animation for sections that come into view
@@ -133,7 +160,7 @@ const SectionAnimation = ({ children, delay = 0 }) => {
 
   useEffect(() => {
     if (inView) {
-      controls.start('visible');
+      controls.start("visible");
     }
   }, [controls, inView]);
 
@@ -165,7 +192,8 @@ const Home = () => {
       <motion.div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.3), transparent 70%)",
+          background:
+            "radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.3), transparent 70%)",
           opacity: 0.4,
         }}
         animate={{ opacity: [0.3, 0.5, 0.3], scale: [1, 1.05, 1] }}
@@ -174,7 +202,8 @@ const Home = () => {
       <motion.div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "linear-gradient(45deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2))",
+          background:
+            "linear-gradient(45deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2))",
           opacity: 0.3,
         }}
         animate={{ opacity: [0.2, 0.4, 0.2] }}
@@ -184,7 +213,8 @@ const Home = () => {
         <motion.div
           className="absolute inset-0"
           style={{
-            backgroundImage: "radial-gradient(circle, #6366f1 2px, transparent 2px)",
+            backgroundImage:
+              "radial-gradient(circle, #6366f1 2px, transparent 2px)",
             backgroundSize: "40px 40px",
           }}
           animate={{ opacity: [0.1, 0.3, 0.1], rotate: [0, 360] }}
@@ -200,12 +230,17 @@ const Home = () => {
               width: `${20 + Math.random() * 40}px`,
               height: `${20 + Math.random() * 40}px`,
               opacity: 0.1 + Math.random() * 0.2,
-              background: i % 2 === 0 ? '#6366f1' : '#a855f7',
-              clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+              background: i % 2 === 0 ? "#6366f1" : "#a855f7",
+              clipPath:
+                "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
               boxShadow: "0 0 15px rgba(99, 102, 241, 0.5)",
             }}
             animate={{
-              opacity: [0.1 + Math.random() * 0.2, 0.3 + Math.random() * 0.2, 0.1 + Math.random() * 0.2],
+              opacity: [
+                0.1 + Math.random() * 0.2,
+                0.3 + Math.random() * 0.2,
+                0.1 + Math.random() * 0.2,
+              ],
               y: [0, -20, 0],
             }}
             transition={{
@@ -252,7 +287,10 @@ const Home = () => {
                   <motion.span
                     key={deal.id}
                     className="bg-gray-800 px-3 py-1 rounded-full text-sm hover:bg-indigo-600 cursor-pointer"
-                    whileHover={{ scale: 1.05, boxShadow: "0 0 10px rgba(99, 102, 241, 0.3)" }}
+                    whileHover={{
+                      scale: 1.05,
+                      boxShadow: "0 0 10px rgba(99, 102, 241, 0.3)",
+                    }}
                   >
                     {deal.title}
                   </motion.span>
@@ -327,18 +365,22 @@ const Home = () => {
                         <span className="text-xs font-semibold text-white bg-yellow-500/80 px-2 py-1 rounded-full">
                           {deal.tag}
                         </span>
-                        <h3 className="mt-2 text-lg font-bold text-white">{deal.title}</h3>
+                        <h3 className="mt-2 text-lg font-bold text-white">
+                          {deal.title}
+                        </h3>
                       </div>
-                      <Link to="/products"><motion.button
-                        className={`w-full py-2 text-white font-semibold rounded-lg ${deal.buttonColor}`}
-                        whileHover={{
-                          scale: 1.05,
-                          boxShadow: "0 0 15px rgba(255, 255, 255, 0.3)",
-                        }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        {deal.buttonText}
-                      </motion.button></Link>
+                      <Link to="/products">
+                        <motion.button
+                          className={`w-full py-2 text-white font-semibold rounded-lg ${deal.buttonColor}`}
+                          whileHover={{
+                            scale: 1.05,
+                            boxShadow: "0 0 15px rgba(255, 255, 255, 0.3)",
+                          }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          {deal.buttonText}
+                        </motion.button>
+                      </Link>
                     </div>
                   </motion.div>
                 ))}
@@ -366,9 +408,13 @@ const Home = () => {
                   >
                     <motion.div
                       className="w-12 h-12 bg-gradient-to-br from-[#6366f1] to-[#a855f7] rounded-full flex items-center justify-center mb-2 shadow-lg"
-                      whileHover={{ boxShadow: "0 0 15px rgba(99, 102, 241, 0.5)" }}
+                      whileHover={{
+                        boxShadow: "0 0 15px rgba(99, 102, 241, 0.5)",
+                      }}
                     >
-                      <span className="text-xl text-white">{category.icon.charAt(0)}</span>
+                      <span className="text-xl text-white">
+                        {category.icon.charAt(0)}
+                      </span>
                     </motion.div>
                     <span className="text-sm text-center text-gray-300 hover:text-[#a855f7]">
                       {category.name}
@@ -394,68 +440,96 @@ const Home = () => {
                 >
                   Free Fire Deals 🔥
                 </motion.h2>
-                <Link to="/products"><motion.button
-                  className="text-orange-400 hover:text-orange-300 text-sm font-medium"
-                  whileHover={{ x: 5, scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  View All →
-                </motion.button></Link>
+                <Link to="/products">
+                  <motion.button
+                    className="text-orange-400 hover:text-orange-300 text-sm font-medium"
+                    whileHover={{ x: 5, scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    View All →
+                  </motion.button>
+                </Link>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                {freeFireDeals.map((deal, index) => (
-                  <motion.div
-                    key={deal.id}
-                    className="relative rounded-xl overflow-hidden border border-[#ff4d4d]/30 shadow-lg"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      transition: { delay: 0.1 * index, duration: 0.5 },
-                    }}
-                    whileHover={{
-                      scale: 1.03,
-                      boxShadow: "0 0 20px rgba(255, 77, 77, 0.5)",
-                      borderColor: "rgba(255, 140, 26, 0.5)",
-                    }}
-                  >
-                    {/* Background Image */}
-                    <div
-                      className="w-full h-48 bg-center bg-cover"
-                      style={{
-                        backgroundImage: `url(${deal.image})`,
-                        filter: "brightness(0.8)",
-                      }}
-                    />
-                    {/* Overlay Gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/90 to-transparent" />
+                {freeFireDeals.map((deal, index) => {
+                  // Define the specific URL for each deal based on its title
+                  let linkUrl = "/products";
+                  if (deal.title === "Elite Pass Season 15") {
+                    linkUrl = "/elite-pass-season-15/products";
+                  } else if (deal.title === "Ultimate Bundle") {
+                    linkUrl = "/ultimate-bundle/products";
+                  } else if (deal.title === "Premium Skins Pack") {
+                    linkUrl = "/premium-skins-pack/products";
+                  }
+                  else if (deal.title === "Booster Pack") {
+                    linkUrl = "/booster-pack/products";
+                  }
+                  else if (deal.title === "5000 Diamonds") {
+                    linkUrl = "/diamonds/products";
+                  }
 
-                    {/* Content */}
-                    <div className="absolute inset-0 p-4 flex flex-col justify-between">
-                      <div>
-                        <span className="text-xs font-semibold text-white bg-red-500/80 px-2 py-1 rounded-full">
-                          {deal.discount}
-                        </span>
-                        <h3 className="mt-2 text-lg font-bold text-white">{deal.title}</h3>
-                        <p className="text-sm text-gray-300">{deal.description}</p>
+                  return (
+                    <motion.div
+                      key={deal.id}
+                      className="relative rounded-xl overflow-hidden border border-[#ff4d4d]/30 shadow-lg"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                        transition: { delay: 0.1 * index, duration: 0.5 },
+                      }}
+                      whileHover={{
+                        scale: 1.03,
+                        boxShadow: "0 0 20px rgba(255, 77, 77, 0.5)",
+                        borderColor: "rgba(255, 140, 26, 0.5)",
+                      }}
+                    >
+                      {/* Background Image */}
+                      <div
+                        className="w-full h-48 bg-center bg-cover"
+                        style={{
+                          backgroundImage: `url(${deal.image})`,
+                          filter: "brightness(0.8)",
+                        }}
+                      />
+                      {/* Overlay Gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/90 to-transparent" />
+
+                      {/* Content */}
+                      <div className="absolute inset-0 p-4 flex flex-col justify-between">
+                        <div>
+                          <span className="text-xs font-semibold text-white bg-red-500/80 px-2 py-1 rounded-full">
+                            {deal.discount}
+                          </span>
+                          <h3 className="mt-2 text-lg font-bold text-white">
+                            {deal.title}
+                          </h3>
+                          <p className="text-sm text-gray-300">
+                            {deal.description}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-md font-semibold text-white mb-2">
+                            {deal.price}
+                          </p>
+                          <Link to={linkUrl}>
+                            <motion.button
+                              className={`w-full py-2 text-white font-semibold rounded-lg ${deal.buttonColor}`}
+                              whileHover={{
+                                scale: 1.05,
+                                boxShadow: "0 0 15px rgba(255, 255, 255, 0.3)",
+                              }}
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              {deal.buttonText}
+                            </motion.button>
+                          </Link>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-md font-semibold text-white mb-2">{deal.price}</p>
-                        <Link to="/products"><motion.button
-                          className={`w-full py-2 text-white font-semibold rounded-lg ${deal.buttonColor}`}
-                          whileHover={{
-                            scale: 1.05,
-                            boxShadow: "0 0 15px rgba(255, 255, 255, 0.3)",
-                          }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          {deal.buttonText}
-                        </motion.button></Link>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -491,7 +565,8 @@ const Home = () => {
                   transition={{ duration: 0.6, delay: 0.2 }}
                 />
                 <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
-                  Get your game credits, items, and top-ups in just a few simple steps
+                  Get your game credits, items, and top-ups in just a few simple
+                  steps
                 </p>
               </motion.div>
 
@@ -522,14 +597,20 @@ const Home = () => {
                           "0 0 20px rgba(99, 102, 241, 0.2)",
                         ],
                       }}
-                      transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                      }}
                     />
                     <div className="absolute -top-5 left-1/2 transform -translate-x-1/2">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] flex items-center justify-center font-bold text-xl shadow-lg">
                         {step.id}
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold mt-4 mb-2 text-white">{step.title}</h3>
+                    <h3 className="text-xl font-bold mt-4 mb-2 text-white">
+                      {step.title}
+                    </h3>
                     <p className="text-gray-400">{step.description}</p>
                   </motion.div>
                 ))}
@@ -588,25 +669,53 @@ const Home = () => {
                           "0 0 20px rgba(99, 102, 241, 0.2)",
                         ],
                       }}
-                      transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                      }}
                     />
                     <div className="text-indigo-400 text-4xl mb-4">"</div>
                     <p className="mb-4 text-gray-300">
-                      The process was super fast! I got my game credits within seconds after payment. Will definitely use again.
+                      The process was super fast! I got my game credits within
+                      seconds after payment. Will definitely use again.
                     </p>
                     <div className="flex items-center mt-6">
                       <motion.div
                         className="w-10 h-10 rounded-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] mr-3"
-                        whileHover={{ scale: 1.1, boxShadow: "0 0 15px rgba(99, 102, 241, 0.5)" }}
+                        whileHover={{
+                          scale: 1.1,
+                          boxShadow: "0 0 15px rgba(99, 102, 241, 0.5)",
+                        }}
                       />
                       <div>
                         <p className="font-bold text-white">User {item}</p>
                         <div className="flex text-yellow-400 text-sm">
-                          <motion.span whileHover={{ scale: 1.2, color: "#facc15" }}>★</motion.span>
-                          <motion.span whileHover={{ scale: 1.2, color: "#facc15" }}>★</motion.span>
-                          <motion.span whileHover={{ scale: 1.2, color: "#facc15" }}>★</motion.span>
-                          <motion.span whileHover={{ scale: 1.2, color: "#facc15" }}>★</motion.span>
-                          <motion.span whileHover={{ scale: 1.2, color: "#facc15" }}>★</motion.span>
+                          <motion.span
+                            whileHover={{ scale: 1.2, color: "#facc15" }}
+                          >
+                            ★
+                          </motion.span>
+                          <motion.span
+                            whileHover={{ scale: 1.2, color: "#facc15" }}
+                          >
+                            ★
+                          </motion.span>
+                          <motion.span
+                            whileHover={{ scale: 1.2, color: "#facc15" }}
+                          >
+                            ★
+                          </motion.span>
+                          <motion.span
+                            whileHover={{ scale: 1.2, color: "#facc15" }}
+                          >
+                            ★
+                          </motion.span>
+                          <motion.span
+                            whileHover={{ scale: 1.2, color: "#facc15" }}
+                          >
+                            ★
+                          </motion.span>
                         </div>
                       </div>
                     </div>
@@ -644,7 +753,11 @@ const Home = () => {
                           "0 0 20px rgba(99, 102, 241, 0.2)",
                         ],
                       }}
-                      transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                      }}
                     />
                     <motion.h3
                       className="text-4xl lg:text-5xl font-bold text-white mb-2"
@@ -671,11 +784,16 @@ const Home = () => {
                 <motion.div
                   className="absolute inset-0 pointer-events-none"
                   style={{
-                    background: "radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2), transparent 70%)",
+                    background:
+                      "radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2), transparent 70%)",
                     opacity: 0.3,
                   }}
                   animate={{ opacity: [0.2, 0.4, 0.2] }}
-                  transition={{ duration: 5, repeat: Infinity, repeatType: "reverse" }}
+                  transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                  }}
                 />
                 <div className="max-w-3xl mx-auto text-center relative z-10">
                   <motion.h2
@@ -693,7 +811,8 @@ const Home = () => {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                   >
-                    Join thousands of gamers who trust Aknuff for their gaming needs
+                    Join thousands of gamers who trust Aknuff for their gaming
+                    needs
                   </motion.p>
                   <motion.button
                     className="bg-white text-indigo-800 font-bold text-lg py-3 px-8 rounded-full shadow-lg"

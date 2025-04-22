@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-// Mock data for game cards
+// Mock data for game cards with proper URL paths
 export const gameCards = [
-  { id: 1, title: 'Mobile Legends', image: 'https://images7.alphacoders.com/116/1167752.jpg', price: 'From $1.99', category: 'Mobile Games', discount: '15% OFF' },
-  { id: 2, title: 'Steam Wallet', image: 'https://www.lifewire.com/thmb/LjRtKhZ1C3ZBs0zPRY96Ip2Sx8g=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/005-c6f34c70111143d89ee02ea246e81a1b.jpg', price: 'From $5.00', category: 'PC Games', discount: '10% OFF' },
-  { id: 3, title: 'PUBG Mobile', image: 'https://m.media-amazon.com/images/I/81bRacT8elL._AC_UF1000,1000_QL80_.jpg', price: 'From $2.99', category: 'Mobile Games', trending: true },
-  { id: 4, title: 'PlayStation Store', image: 'https://blog.playstation.com/tachyon/2024/12/07644a42b4986fd0982a5f830ddbc17d741cbb21.png?resize=1088%2C612&crop_strategy=smart', price: 'From $10.00', category: 'Console', discount: '5% OFF' },
-  { id: 5, title: 'Free Fire', image: 'https://wallpapers.com/images/featured/free-fire-4k-obod7src8jkhnoo6.jpg', price: 'From $0.99', category: 'Mobile Games', trending: true },
-  { id: 6, title: 'Nintendo eShop', image: 'https://images7.alphacoders.com/867/867557.jpg', price: 'From $15.00', category: 'Console', discount: '8% OFF' },
-  { id: 7, title: 'Valorant', image: 'https://wallpapers.com/images/featured/valorant-305kescxw5dpup7y.jpg', price: 'From $4.99', category: 'PC Games', trending: true },
-  { id: 8, title: 'Roblox', image: 'https://wallpapercat.com/w/full/4/f/e/11067-3200x1680-desktop-hd-roblox-background.jpg', price: 'From $3.00', category: 'PC Games', discount: '12% OFF' },
+  { id: 1, title: 'Mobile Legends', image: 'https://images7.alphacoders.com/116/1167752.jpg', price: 'From $1.99', category: 'Mobile Games', discount: '15% OFF', path: '/mobile-legends' },
+  { id: 2, title: 'Steam Wallet', image: 'https://www.lifewire.com/thmb/LjRtKhZ1C3ZBs0zPRY96Ip2Sx8g=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/005-c6f34c70111143d89ee02ea246e81a1b.jpg', price: 'From $5.00', category: 'PC Games', discount: '10% OFF', path: '/steam-wallet' },
+  { id: 3, title: 'PUBG Mobile', image: 'https://m.media-amazon.com/images/I/81bRacT8elL._AC_UF1000,1000_QL80_.jpg', price: 'From $2.99', category: 'Mobile Games', trending: true, path: '/pubg-mobile' },
+  { id: 4, title: 'PlayStation Store', image: 'https://blog.playstation.com/tachyon/2024/12/07644a42b4986fd0982a5f830ddbc17d741cbb21.png?resize=1088%2C612&crop_strategy=smart', price: 'From $10.00', category: 'Console', discount: '5% OFF', path: '/playstation-store' },
+  { id: 5, title: 'Garena Free Fire Accounts', image: 'https://wallpapers.com/images/featured/free-fire-4k-obod7src8jkhnoo6.jpg', price: 'From $0.99', category: 'Mobile Games', trending: true, path: '/garena-free-fire-accounts' },
+  { id: 6, title: 'Nintendo eShop', image: 'https://images7.alphacoders.com/867/867557.jpg', price: 'From $15.00', category: 'Console', discount: '8% OFF', path: '/nintendo-eshop' },
+  { id: 7, title: 'Valorant', image: 'https://wallpapers.com/images/featured/valorant-305kescxw5dpup7y.jpg', price: 'From $4.99', category: 'PC Games', trending: true, path: '/valorant' },
+  { id: 8, title: 'Roblox', image: 'https://wallpapercat.com/w/full/4/f/e/11067-3200x1680-desktop-hd-roblox-background.jpg', price: 'From $3.00', category: 'PC Games', discount: '12% OFF', path: '/roblox' },
 ];
 
 const Cards = () => {
@@ -222,7 +222,8 @@ const Cards = () => {
               exit="exit"
               whileHover="hover"
             >
-              <Link to={`/products`}>
+              {/* Using the specific path for each card */}
+              <Link to={card.path}>
                 {/* Glowing Border Effect */}
                 <motion.div
                   className="absolute inset-0 pointer-events-none"
