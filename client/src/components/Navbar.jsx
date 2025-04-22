@@ -168,19 +168,27 @@ const Navbar = () => {
             <div className="flex flex-col h-full">
               <motion.div className="mb-6">
                 <h3 className="text-lg font-bold text-white mb-4">Categories</h3>
-                <div className="space-y-3">
+                <div className="space-y-3" onClick={()=>navigate('/products')}>
                   {['Mobile Games', 'PC Games', 'Console Games', 'Gift Cards', 'Game Points'].map(item => (
-                    <motion.a key={item} href={`#${item.toLowerCase().replace(' ', '-')}`} className="block text-gray-300 hover:text-indigo-400 py-2 border-b border-gray-800">{item}</motion.a>
+                    <motion.a key={item} className="block text-gray-300 hover:text-indigo-400 py-2 border-b border-gray-800">{item}</motion.a>
                   ))}
                 </div>
               </motion.div>
               <motion.div className="mb-6">
                 <h3 className="text-lg font-bold text-white mb-4">Account</h3>
-                <div className="space-y-3">
-                  {['Login', 'Register', 'My Orders', 'Wishlist', 'Products', 'Settings'].map(item => (
-                    <motion.a key={item} href={item === 'Products' ? '/products' : `#${item.toLowerCase().replace(' ', '-')}`} className="block text-gray-300 hover:text-indigo-400 py-2 border-b border-gray-800" onClick={item === 'Products' ? e => { e.preventDefault(); handleProductsClick(); } : undefined}>{item}</motion.a>
-                  ))}
+                <div className="space-y-3" >
+                  
+                    <motion.a className="block text-gray-300 hover:text-indigo-400 py-2 border-b border-gray-800" onClick={()=>navigate('/login')}>Login</motion.a>
+                    <motion.a className="block text-gray-300 hover:text-indigo-400 py-2 border-b border-gray-800" onClick={()=>navigate('/register')}>Register</motion.a>
+                    <motion.a className="block text-gray-300 hover:text-indigo-400 py-2 border-b border-gray-800" onClick={()=>navigate('/settings')}>Settings</motion.a>
                 </div>
+                
+                  
+                   
+            
+                
+               
+                
               </motion.div>
               <motion.div className="mt-auto">
                 <motion.button className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-300">Contact Support</motion.button>

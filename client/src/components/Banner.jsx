@@ -780,7 +780,7 @@ const Banner = () => {
               animate={{ opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             />
-            <span className="text-gray-300">ONLINE: 2.3K</span>
+            <span className="text-gray-300">ONLINE: {Math.floor(Math.random() * 5000) + 1000}</span>
           </div>
           <div className="text-xs text-gray-300">|</div>
           <div className="flex items-center text-xs">
@@ -789,7 +789,7 @@ const Banner = () => {
               animate={{ opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
             />
-            <span className="text-gray-300">TOP DEALS: 125</span>
+            <span className="text-gray-300">TOP DEALS: {Math.floor(Math.random()*500)+100}</span>
           </div>
           <div className="text-xs text-gray-300">|</div>
           <div className="flex items-center text-xs">
@@ -798,7 +798,7 @@ const Banner = () => {
               animate={{ opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 1.5, repeat: Infinity, delay: 1 }}
             />
-            <span className="text-gray-300">NEW GAMES: 18</span>
+            <span className="text-gray-300">NEW GAMES: {Math.floor(Math.random()*50)+10}</span>
           </div>
         </motion.div>
       </div>
