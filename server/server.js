@@ -302,31 +302,24 @@ wss.on('connection', (ws, req) => {
 
       ws.on('close', async () => {
         const clientInfo = clients.get(ws);
-        console.log('WebSocket closed, clientInfo:', clientInfo);
         if (clientInfo && clientInfo.userId) {
           try {
             // Remove from active users map
             activeUsers.delete(clientInfo.userId);
             
             // Update lastSeen in database
-            const updatedUser = await User.findByIdAndUpdate(
+            await User.findByIdAndUpdate(
               clientInfo.userId,
-              { lastSeen: new Date() },
-              { new: true, runValidators: true }
+              { lastSeen: new Date() }
             );
             
-            console.log(`Updated lastSeen for user: ${clientInfo.name}, new lastSeen: ${updatedUser.lastSeen}, userId: ${clientInfo.userId}`);
-            
-            // Broadcast offline status to all relevant clients
+            // Make sure to broadcast offline status to all relevant clients
             broadcastUserStatus(clientInfo.userId, false);
           } catch (err) {
             console.error('Error updating lastSeen:', err);
           }
-        } else {
-          console.warn('No clientInfo or userId found on WebSocket close');
         }
         clients.delete(ws);
-        console.log(`Client disconnected: ${clientInfo?.name || 'Unknown'}`);
       });
       
       ws.on('error', (error) => console.error('WebSocket error:', error));
@@ -339,18 +332,26 @@ wss.on('connection', (ws, req) => {
 
 // Function to broadcast user status changes
 function broadcastUserStatus(userId, isOnline) {
+  const currentTime = new Date();
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify({
         type: 'userStatus',
         userId: userId,
         isOnline: isOnline,
-        lastSeen: new Date()
+        lastSeen: currentTime
       }));
     }
   });
 }
-
+function isUserOnline(userId) {
+  return (
+    clients.has(userId) || 
+    activeUsers.has(userId) || 
+    (lastActiveTimestamps.has(userId) && 
+     (new Date() - lastActiveTimestamps.get(userId)) < ONLINE_THRESHOLD_MS)
+  );
+}
 // Periodically check for stale connections
 setInterval(() => {
   const now = new Date();

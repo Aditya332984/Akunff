@@ -130,6 +130,15 @@ const Chat = () => {
     ws.onclose = () => {
       console.log('WebSocket disconnected');
       setIsConnected(false);
+      
+      // Try to reconnect after a delay
+      setTimeout(() => {
+        if (socket) {
+          // Attempt to reconnect
+          const newWs = new WebSocket(`${wsURL}?token=${encodeURIComponent(token)}&productId=${productId}`);
+          setSocket(newWs);
+        }
+      }, 3000);
     };
 
     ws.onerror = (error) => {
@@ -219,7 +228,8 @@ const Chat = () => {
     if (isUserOnline) return 'Online';
     
     const now = new Date();
-    const diff = Math.floor((now - date) / 1000 / 60); // Difference in minutes
+    const lastSeenDate = new Date(date);
+    const diff = Math.floor((now - lastSeenDate) / 1000 / 60); // Difference in minutes
     
     if (diff < 1) return 'Last seen: Just now';
     if (diff < 60) return `Last seen: ${diff} minute${diff > 1 ? 's' : ''} ago`;
@@ -231,7 +241,7 @@ const Chat = () => {
     if (days < 7) return `Last seen: ${days} day${days > 1 ? 's' : ''} ago`;
     
     // For longer periods, show the actual date
-    return `Last seen: ${date.toLocaleDateString()}`;
+    return `Last seen: ${lastSeenDate.toLocaleDateString()}`;
   };
 
   return (
