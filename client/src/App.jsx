@@ -16,11 +16,13 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import Settings from './pages/Setting';
+import RouteTitleHandler from './components/RouteTitleHandler';
 
 const App = () => {
   return (
     <AuthProvider>
       <CartProvider>
+        <RouteTitleHandler/>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

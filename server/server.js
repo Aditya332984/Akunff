@@ -140,6 +140,19 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Internal server error', error: err.message });
 });
 
+app.get('/api/user/last-seen/:id', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    console.log(`User last seen: ${user.lastSeen}`);
+    res.json({ lastSeen: user.lastSeen });
+  } catch (error) {
+    console.error('Error fetching user last seen:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // WebSocket Setup
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -223,10 +236,38 @@ wss.on('connection', (ws, req) => {
         }
       });
 
-      ws.on('close', () => {
+      ws.on('close', async () => {
+        const clientInfo = clients.get(ws);
+        console.log('WebSocket closed, clientInfo:', clientInfo);
+        if (clientInfo && clientInfo.userId) {
+          try {
+            const updatedUser = await User.findByIdAndUpdate(
+              clientInfo.userId,
+              { lastSeen: new Date() },
+              { new: true, runValidators: true } // Ensure validators run
+            );
+            console.log(`Updated lastSeen for user: ${clientInfo.name}, new lastSeen: ${updatedUser.lastSeen}, userId: ${clientInfo.userId}`);
+            // Optional: Broadcast update
+            wss.clients.forEach((client) => {
+              const recipientInfo = clients.get(client);
+              if (client.readyState === WebSocket.OPEN && recipientInfo) {
+                client.send(JSON.stringify({
+                  type: 'lastSeenUpdate',
+                  userId: clientInfo.userId,
+                  lastSeen: updatedUser.lastSeen,
+                }));
+              }
+            });
+          } catch (err) {
+            console.error('Error updating lastSeen:', err);
+          }
+        } else {
+          console.warn('No clientInfo or userId found on WebSocket close');
+        }
         clients.delete(ws);
-        console.log(`Client disconnected: ${user.name}`);
+        console.log(`Client disconnected: ${clientInfo?.name || 'Unknown'}`);
       });
+      
 
       ws.on('error', (error) => console.error('WebSocket error:', error));
     } catch (error) {

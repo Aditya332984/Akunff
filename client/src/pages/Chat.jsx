@@ -13,6 +13,7 @@ const Chat = () => {
   const [newMessage, setNewMessage] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [chattingWith, setChattingWith] = useState('Loading...');
+  const [lastSeen, setLastSeen] = useState(null); // New state for last seen
   const [socket, setSocket] = useState(null);
   const messagesContainerRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -37,15 +38,18 @@ const Chat = () => {
 
     const initializeChat = async () => {
       try {
-        const [sellerResponse, messagesResponse] = await Promise.all([
+        const [sellerResponse, messagesResponse, lastSeenResponse] = await Promise.all([
           axios.get(`${API_URL}/auth/user/${sellerId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
           axios.get(`${API_URL}/messages/${productId}/${sellerId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
+          axios.get(`${API_URL}/user/last-seen/${sellerId}`, { // Fetch last seen
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
-
+        console.log('last seen response',lastSeenResponse.data);
         if (sellerResponse.data && sellerResponse.data.name) {
           setChattingWith(sellerResponse.data.name);
         } else {
@@ -62,6 +66,10 @@ const Chat = () => {
             isReceived: msg.sender?._id !== user.id,
           }))
         );
+
+        if (lastSeenResponse.data && lastSeenResponse.data.lastSeen) {
+          setLastSeen(new Date(lastSeenResponse.data.lastSeen)); // Store last seen timestamp
+        }
       } catch (error) {
         console.error('Error initializing chat:', error);
         setChattingWith('Unknown Seller');
@@ -153,6 +161,19 @@ const Chat = () => {
     }
   };
 
+  // Helper function to format last seen
+  const formatLastSeen = (date) => {
+    if (!date) return 'Last seen: Unknown';
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000 / 60); // Difference in minutes
+    if (diff < 1) return 'Last seen: Just now';
+    if (diff < 60) return `Last seen: ${diff} minute${diff > 1 ? 's' : ''} ago`;
+    const hours = Math.floor(diff / 60);
+    if (hours < 24) return `Last seen: ${hours} hour${hours > 1 ? 's' : ''} ago`;
+    const days = Math.floor(hours / 24);
+    return `Last seen: ${days} day${days > 1 ? 's' : ''} ago`;
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#0f172a] text-white relative overflow-hidden">
       <motion.div
@@ -183,6 +204,7 @@ const Chat = () => {
                   <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'} mr-2`}></div>
                   <span className="text-xs text-gray-400">{isConnected ? 'Online' : 'Offline'}</span>
                 </div>
+                <div className="text-xs text-gray-400">{formatLastSeen(lastSeen)}</div> {/* Display last seen */}
               </div>
             </div>
           </div>

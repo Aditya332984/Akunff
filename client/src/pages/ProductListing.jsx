@@ -205,6 +205,7 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
           }}
           whileTap={{ scale: 0.97 }}
           onClick={() => {
+            document.title = product.title;
             navigate(`/product/${product._id}`, {replace: true});
             window.location.reload(true);
           }}
@@ -215,6 +216,8 @@ const GameCard = ({ product, onAddToCart, onAddToWishlist }) => {
     </motion.div>
   );
 };
+
+
 
 // FilterSidebar component for the right side space
 const FilterSidebar = ({ categories, platforms, onFilter }) => {
