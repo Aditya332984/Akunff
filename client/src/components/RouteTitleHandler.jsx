@@ -16,6 +16,7 @@ const RouteTitleHandler = () => {
             !isNaN(pathSegments[pathSegments.indexOf("product") + 1]);
         
         // Skip title update if it's a product ID URL
+        
         if (!isProductIdPath) {
             const path = location.pathname
                 .split("/")

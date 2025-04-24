@@ -25,7 +25,12 @@ const ProductDetail = () => {
   const [wishlist, setWishlist] = useState(false);
   const { user, token } = useAuth();
   const [activeTab, setActiveTab] = useState("reviews");
-
+  useEffect(() => {
+    if (product && product.title) {
+      document.title = `${product.title} | Akunff`;
+    }
+  }, [product]);
+  
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
