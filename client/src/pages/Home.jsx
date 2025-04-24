@@ -73,7 +73,7 @@ const freeFireDeals = [
   },
   {
     id: 3,
-    title: "Ultimate Bundle",
+    title: "FF BUNDLE PACK",
     description: "Get skins, emotes, and more",
     price: "$19.99",
     discount: "20% Off",
@@ -83,7 +83,7 @@ const freeFireDeals = [
   },
   {
     id: 4,
-    title: "Premium Skins Pack",
+    title: "Redeem Kode FF",
     description: "Stand out with epic skins",
     price: "$14.99",
     discount: "25% Off",
@@ -94,7 +94,7 @@ const freeFireDeals = [
   },
   {
     id: 5,
-    title: "Booster Pack",
+    title: "Free Fire Server",
     description: "Double XP and rewards for 7 days",
     price: "$7.99",
     discount: "10% Off",
@@ -456,17 +456,17 @@ const Home = () => {
                   // Define the specific URL for each deal based on its title
                   let linkUrl = "/products";
                   if (deal.title === "Elite Pass Season 15") {
-                    linkUrl = "/elite-pass-season-15/products";
-                  } else if (deal.title === "Ultimate Bundle") {
-                    linkUrl = "/ultimate-bundle/products";
-                  } else if (deal.title === "Premium Skins Pack") {
-                    linkUrl = "/premium-skins-pack/products";
+                    linkUrl = "/garena-free-fire-elite-pass-akun";
+                  } else if (deal.title === "FF BUNDLE PACK") {
+                    linkUrl = "/garena-free-fire-get-skin-emotes-akun";
+                  } else if (deal.title === "Redeem Kode FF") {
+                    linkUrl = "/redeem-kode-free-fire";
                   }
-                  else if (deal.title === "Booster Pack") {
-                    linkUrl = "/booster-pack/products";
+                  else if (deal.title === "Free Fire Server") {
+                    linkUrl = "/free-fire-server-akun";
                   }
                   else if (deal.title === "5000 Diamonds") {
-                    linkUrl = "/diamonds/products";
+                    linkUrl = "/garena-diamonds-free-fire-max";
                   }
 
                   return (

@@ -24,14 +24,21 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [wishlist, setWishlist] = useState(false);
   const { user, token } = useAuth();
+  const [activeTab, setActiveTab] = useState("reviews");
 
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
-        console.log("Fetching product from:", `${import.meta.env.VITE_API_URL}/product/${id}`);
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/product/${id}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        console.log(
+          "Fetching product from:",
+          `${import.meta.env.VITE_API_URL}/product/${id}`
+        );
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/product/${id}`
+        );
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           throw new Error("Response is not JSON");
@@ -40,23 +47,33 @@ const ProductDetail = () => {
         console.log("Product data received:", data); // Debug log to check user and id
         if (!data._id || !data.user?._id) {
           console.warn("Product data missing _id or user._id:", data);
-          setProduct({ ...data, _id: data._id || id, user: data.user || { _id: null } });
+          setProduct({
+            ...data,
+            _id: data._id || id,
+            user: data.user || { _id: null },
+          });
         } else {
           setProduct(data);
         }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching product details:", error);
-      }finally{
+      } finally {
         setLoading(false);
       }
     };
 
     const fetchReviews = async () => {
       try {
-        console.log("Fetching reviews from:", `${import.meta.env.VITE_API_URL}/reviews/${id}`);
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/reviews/${id}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        console.log(
+          "Fetching reviews from:",
+          `${import.meta.env.VITE_API_URL}/reviews/${id}`
+        );
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/reviews/${id}`
+        );
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           throw new Error("Response is not JSON");
@@ -97,7 +114,9 @@ const ProductDetail = () => {
       const responseData = await response.json();
       if (response.ok) {
         setNewReview({ text: "", rating: 0 });
-        const updatedReviews = await fetch(`${import.meta.env.VITE_API_URL}/reviews/${id}`);
+        const updatedReviews = await fetch(
+          `${import.meta.env.VITE_API_URL}/reviews/${id}`
+        );
         const data = await updatedReviews.json();
         setReviews(data);
       } else {
@@ -117,8 +136,13 @@ const ProductDetail = () => {
 
   const handleChatWithSeller = () => {
     if (!product?.user?._id || !product?._id) {
-      console.error("Seller ID or Product ID is missing", { userId: product?.user?._id, productId: product?._id });
-      alert("Unable to initiate chat. Seller or product information is missing. Please contact support.");
+      console.error("Seller ID or Product ID is missing", {
+        userId: product?.user?._id,
+        productId: product?._id,
+      });
+      alert(
+        "Unable to initiate chat. Seller or product information is missing. Please contact support."
+      );
       return;
     }
     navigate(`/chat/${product.user._id}?productId=${product._id}`);
@@ -133,7 +157,9 @@ const ProductDetail = () => {
           transition={{ duration: 1.5, repeat: Infinity }}
         >
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-xl font-medium text-blue-400">Loading Product Details...</p>
+          <p className="text-xl font-medium text-blue-400">
+            Loading Product Details...
+          </p>
         </motion.div>
       </div>
     );
@@ -146,8 +172,12 @@ const ProductDetail = () => {
           <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-red-500/20 mb-4">
             <span className="text-red-500 text-2xl">!</span>
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Product Not Found</h2>
-          <p className="text-gray-400 mb-6">The product you're looking for doesn't exist or has been removed.</p>
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Product Not Found
+          </h2>
+          <p className="text-gray-400 mb-6">
+            The product you're looking for doesn't exist or has been removed.
+          </p>
           <button
             onClick={() => navigate("/products")}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
@@ -160,9 +190,13 @@ const ProductDetail = () => {
   }
 
   // Create array of product images - use full Cloudinary URL
-  const productImages = product.image?.url ? 
-    [product.image.url, product.image.url, product.image.url] : 
-    ['/api/placeholder/400/320', '/api/placeholder/400/320', '/api/placeholder/400/320'];
+  const productImages = product.image?.url
+    ? [product.image.url, product.image.url, product.image.url]
+    : [
+        "/api/placeholder/400/320",
+        "/api/placeholder/400/320",
+        "/api/placeholder/400/320",
+      ];
 
   const avgRating = reviews.length
     ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
@@ -195,7 +229,9 @@ const ProductDetail = () => {
             Products
           </button>
           <span className="mx-2">/</span>
-          <span className="text-blue-400 truncate max-w-xs">{product.title}</span>
+          <span className="text-blue-400 truncate max-w-xs">
+            {product.title}
+          </span>
         </div>
       </div>
 
@@ -224,7 +260,9 @@ const ProductDetail = () => {
                     onClick={() => setWishlist(!wishlist)}
                   >
                     <Heart
-                      className={`h-5 w-5 ${wishlist ? "fill-red-500 text-red-500" : "text-white"}`}
+                      className={`h-5 w-5 ${
+                        wishlist ? "fill-red-500 text-red-500" : "text-white"
+                      }`}
                     />
                   </motion.button>
                   <motion.button
@@ -267,157 +305,227 @@ const ProductDetail = () => {
             <div className="mt-10 bg-gray-800/40 rounded-2xl shadow-lg border border-gray-700/50 overflow-hidden">
               <div className="border-b border-gray-700">
                 <div className="flex">
-                  <button className="px-6 py-4 text-blue-400 border-b-2 border-blue-500 font-medium">
+                  <button
+                    className={`px-6 py-4 font-medium ${
+                      activeTab === "reviews"
+                        ? "text-blue-400 border-b-2 border-blue-500"
+                        : "text-gray-400 hover:text-white transition-colors"
+                    }`}
+                    onClick={() => setActiveTab("reviews")}
+                  >
                     Reviews ({reviews.length})
                   </button>
-                  <button className="px-6 py-4 text-gray-400 hover:text-white transition-colors">
+                  <button
+                    className={`px-6 py-4 font-medium ${
+                      activeTab === "description"
+                        ? "text-blue-400 border-b-2 border-blue-500"
+                        : "text-gray-400 hover:text-white transition-colors"
+                    }`}
+                    onClick={() => setActiveTab("description")}
+                  >
                     Product Description
                   </button>
                 </div>
               </div>
 
               <div className="p-6">
-                <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center">
-                    <div className="text-4xl font-bold text-white mr-4">
-                      {avgRating.toFixed(1)}
-                      <span className="text-lg text-gray-400 font-normal">/5.0</span>
-                    </div>
-                    <div>
+                {activeTab === "reviews" ? (
+                  <div>
+                    <div className="flex items-center justify-between mb-8">
                       <div className="flex items-center">
-                        {[...Array(5)].map((_, index) => (
-                          <Star
-                            key={index}
-                            className={`h-5 w-5 ${
-                              index < Math.round(avgRating)
-                                ? "text-yellow-400 fill-yellow-400"
-                                : "text-gray-600"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <div className="text-sm text-gray-400 mt-1">
-                        {reviews.length} reviews
-                      </div>
-                    </div>
-                  </div>
-                  <motion.button
-                    className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg border border-blue-500/30 flex items-center"
-                    whileHover={{
-                      scale: 1.05,
-                      backgroundColor: "rgba(59, 130, 246, 0.3)",
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() =>
-                      document
-                        .getElementById("write-review")
-                        .scrollIntoView({ behavior: "smooth" })
-                    }
-                  >
-                    Write a Review
-                    <Star className="h-4 w-4 ml-2" />
-                  </motion.button>
-                </div>
-
-                {reviews.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <p className="text-gray-400">
-                      No reviews yet. Be the first to review this product!
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {reviews.map((review) => (
-                      <div
-                        key={review._id}
-                        className="bg-gray-900/40 p-5 rounded-xl border border-gray-700/50"
-                      >
-                        <div className="flex items-center justify-between">
+                        <div className="text-4xl font-bold text-white mr-4">
+                          {avgRating.toFixed(1)}
+                          <span className="text-lg text-gray-400 font-normal">
+                            /5.0
+                          </span>
+                        </div>
+                        <div>
                           <div className="flex items-center">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg font-bold mr-3">
-                              {(review.user?.name || "A")[0]}
-                            </div>
-                            <div>
-                              <p className="font-medium text-white">
-                                {review.user?.name || "Anonymous"}
-                              </p>
-                              <p className="text-xs text-gray-400">
-                                {new Date(review.createdAt).toLocaleDateString("en-US", {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                })}
-                              </p>
-                            </div>
+                            {[...Array(5)].map((_, index) => (
+                              <Star
+                                key={index}
+                                className={`h-5 w-5 ${
+                                  index < Math.round(avgRating)
+                                    ? "text-yellow-400 fill-yellow-400"
+                                    : "text-gray-600"
+                                }`}
+                              />
+                            ))}
                           </div>
-                          <div className="flex items-center bg-gray-800/70 px-3 py-1 rounded-lg">
-                            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 mr-1" />
-                            <span className="text-sm font-medium">
-                              {review.rating.toFixed(1)}
-                            </span>
+                          <div className="text-sm text-gray-400 mt-1">
+                            {reviews.length} reviews
                           </div>
                         </div>
-                        <p className="text-gray-300 mt-3 leading-relaxed">
-                          {review.text}
+                      </div>
+                      <motion.button
+                        className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg border border-blue-500/30 flex items-center"
+                        whileHover={{
+                          scale: 1.05,
+                          backgroundColor: "rgba(59, 130, 246, 0.3)",
+                        }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() =>
+                          document
+                            .getElementById("write-review")
+                            .scrollIntoView({ behavior: "smooth" })
+                        }
+                      >
+                        Write a Review
+                        <Star className="h-4 w-4 ml-2" />
+                      </motion.button>
+                    </div>
+
+                    {reviews.length === 0 ? (
+                      <div className="py-8 text-center">
+                        <p className="text-gray-400">
+                          No reviews yet. Be the first to review this product!
                         </p>
                       </div>
-                    ))}
-                  </div>
-                )}
+                    ) : (
+                      <div className="space-y-6">
+                        {reviews.map((review) => (
+                          <div
+                            key={review._id}
+                            className="bg-gray-900/40 p-5 rounded-xl border border-gray-700/50"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg font-bold mr-3">
+                                  {(review.user?.name || "A")[0]}
+                                </div>
+                                <div>
+                                  <p className="font-medium text-white">
+                                    {review.user?.name || "Anonymous"}
+                                  </p>
+                                  <p className="text-xs text-gray-400">
+                                    {new Date(review.createdAt).toLocaleDateString(
+                                      "en-US",
+                                      {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric",
+                                      }
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center bg-gray-800/70 px-3 py-1 rounded-lg">
+                                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 mr-1" />
+                                <span className="text-sm font-medium">
+                                  {review.rating.toFixed(1)}
+                                </span>
+                              </div>
+                            </div>
+                            <p className="text-gray-300 mt-3 leading-relaxed">
+                              {review.text}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
-                <div
-                  id="write-review"
-                  className="mt-10 bg-gray-900/40 p-6 rounded-xl border border-gray-700/50"
-                >
-                  <h3 className="text-xl font-semibold text-white mb-4">
-                    Write a Review
-                  </h3>
-                  <div className="mb-6">
-                    <label className="block text-gray-400 mb-2">Your Rating</label>
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, index) => (
-                        <motion.button
-                          key={index}
-                          whileHover={{ scale: 1.2 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() =>
-                            setNewReview({ ...newReview, rating: index + 1 })
+                    <div
+                      id="write-review"
+                      className="mt-10 bg-gray-900/40 p-6 rounded-xl border border-gray-700/50"
+                    >
+                      <h3 className="text-xl font-semibold text-white mb-4">
+                        Write a Review
+                      </h3>
+                      <div className="mb-6">
+                        <label className="block text-gray-400 mb-2">
+                          Your Rating
+                        </label>
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, index) => (
+                            <motion.button
+                              key={index}
+                              whileHover={{ scale: 1.2 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() =>
+                                setNewReview({ ...newReview, rating: index + 1 })
+                              }
+                            >
+                              <Star
+                                className={`h-8 w-8 mr-1 ${
+                                  index < newReview.rating
+                                    ? "text-yellow-400 fill-yellow-400"
+                                    : "text-gray-600"
+                                }`}
+                              />
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="mb-6">
+                        <label className="block text-gray-400 mb-2">
+                          Your Review
+                        </label>
+                        <textarea
+                          className="w-full p-4 border border-gray-700 rounded-xl bg-gray-800/70 text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
+                          placeholder="Share your experience with this product..."
+                          value={newReview.text}
+                          onChange={(e) =>
+                            setNewReview({ ...newReview, text: e.target.value })
                           }
-                        >
-                          <Star
-                            className={`h-8 w-8 mr-1 ${
-                              index < newReview.rating
-                                ? "text-yellow-400 fill-yellow-400"
-                                : "text-gray-600"
-                            }`}
-                          />
-                        </motion.button>
-                      ))}
+                        />
+                      </div>
+                      <motion.button
+                        className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium"
+                        whileHover={{
+                          scale: 1.02,
+                          boxShadow: "0 0 15px rgba(79,70,229,0.4)",
+                        }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleAddReview}
+                      >
+                        Submit Review
+                      </motion.button>
                     </div>
                   </div>
-                  <div className="mb-6">
-                    <label className="block text-gray-400 mb-2">Your Review</label>
-                    <textarea
-                      className="w-full p-4 border border-gray-700 rounded-xl bg-gray-800/70 text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
-                      placeholder="Share your experience with this product..."
-                      value={newReview.text}
-                      onChange={(e) =>
-                        setNewReview({ ...newReview, text: e.target.value })
-                      }
-                    />
+                ) : (
+                  // Product description content
+                  <div className="py-4">
+                    <h3 className="text-xl font-semibold text-white mb-4">
+                      About This Product
+                    </h3>
+                    <p className="text-gray-300 leading-relaxed whitespace-pre-line">
+                      {product.description}
+                    </p>
+
+                    {/* Add additional product details if available */}
+                    {product.platform && (
+                      <div className="mt-6">
+                        <h4 className="text-lg font-medium text-white mb-3">
+                          Specifications
+                        </h4>
+                        <div className="grid grid-cols-2 gap-4 bg-gray-900/40 p-4 rounded-xl border border-gray-700/50">
+                          <div>
+                            <p className="text-gray-400 text-sm">Platform</p>
+                            <p className="text-white font-medium">
+                              {product.platform}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-400 text-sm">Genre</p>
+                            <p className="text-white font-medium">
+                              {product.genre || "N/A"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-400 text-sm">Game ID</p>
+                            <p className="text-white font-medium">
+                              {product.gameId || "N/A"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-400 text-sm">Availability</p>
+                            <p className="text-white font-medium">In Stock</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <motion.button
-                    className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium"
-                    whileHover={{
-                      scale: 1.02,
-                      boxShadow: "0 0 15px rgba(79,70,229,0.4)",
-                    }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleAddReview}
-                  >
-                    Submit Review
-                  </motion.button>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -492,7 +600,9 @@ const ProductDetail = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-gray-400 text-sm">Platform</p>
-                      <p className="text-white font-medium">{product.platform}</p>
+                      <p className="text-white font-medium">
+                        {product.platform}
+                      </p>
                     </div>
                     <div>
                       <p className="text-gray-400 text-sm">Genre</p>
@@ -523,9 +633,7 @@ const ProductDetail = () => {
                     className="w-12 flex justify-center items-center bg-gray-900 text-white rounded-l-lg border border-gray-700"
                     whileHover={{ backgroundColor: "rgba(31, 41, 55, 0.9)" }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() =>
-                      setQuantity(quantity > 1 ? quantity - 1 : 1)
-                    }
+                    onClick={() => setQuantity(quantity > 1 ? quantity - 1 : 1)}
                   >
                     -
                   </motion.button>
