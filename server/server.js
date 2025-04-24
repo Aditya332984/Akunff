@@ -145,8 +145,8 @@ app.get('/api/user/last-seen/:id', authMiddleware, async (req, res) => {
     const userId = req.params.id;
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
-    console.log(`User last seen: ${user.lastSeen}`);
-    res.json({ lastSeen: user.lastSeen });
+    console.log(`User last seen: ${user.lastseen}`);
+    res.json({ lastSeen: user.lastseen });
   } catch (error) {
     console.error('Error fetching user last seen:', error);
     res.status(500).json({ message: 'Server error' });
