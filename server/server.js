@@ -134,29 +134,42 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-// General Error Handler
-app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  res.status(500).json({ message: 'Internal server error', error: err.message });
-});
+// Online status determination (5 minutes threshold)
+const ONLINE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 app.get('/api/user/last-seen/:id', authMiddleware, async (req, res) => {
   try {
     const userId = req.params.id;
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
-    console.log(`User last seen: ${user.lastseen}`);
-    res.json({ lastSeen: user.lastseen });
+    
+    const lastSeen = user.lastSeen || user.updatedAt || user.createdAt;
+    const isOnline = clients.has(userId) || 
+                    (lastSeen && (new Date() - new Date(lastSeen)) < ONLINE_THRESHOLD_MS);
+    
+    console.log(`User ${userId} last seen: ${lastSeen}, online status: ${isOnline}`);
+    
+    res.json({ 
+      lastSeen: lastSeen,
+      isOnline: isOnline
+    });
   } catch (error) {
     console.error('Error fetching user last seen:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
+// General Error Handler
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ message: 'Internal server error', error: err.message });
+});
+
 // WebSocket Setup
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const clients = new Map();
+const clients = new Map(); // Map WebSocket to client info
+const activeUsers = new Map(); // Map userId to WebSocket
 
 wss.on('connection', (ws, req) => {
   const urlParams = new URLSearchParams(req.url.split('?')[1]);
@@ -184,7 +197,17 @@ wss.on('connection', (ws, req) => {
         return;
       }
 
-      clients.set(ws, { userId: user._id.toString(), googleId: user.googleId, name: user.name, productId });
+      const userId = user._id.toString();
+      
+      // Store connection info
+      clients.set(ws, { userId, googleId: user.googleId, name: user.name, productId });
+      activeUsers.set(userId, ws);
+      
+      // Update user status to online
+      await User.findByIdAndUpdate(userId, { lastSeen: new Date() });
+      
+      // Broadcast online status to all connected clients
+      broadcastUserStatus(userId, true);
 
       ws.send(JSON.stringify({
         type: 'welcome',
@@ -241,23 +264,20 @@ wss.on('connection', (ws, req) => {
         console.log('WebSocket closed, clientInfo:', clientInfo);
         if (clientInfo && clientInfo.userId) {
           try {
+            // Remove from active users map
+            activeUsers.delete(clientInfo.userId);
+            
+            // Update lastSeen in database
             const updatedUser = await User.findByIdAndUpdate(
               clientInfo.userId,
               { lastSeen: new Date() },
-              { new: true, runValidators: true } // Ensure validators run
+              { new: true, runValidators: true }
             );
+            
             console.log(`Updated lastSeen for user: ${clientInfo.name}, new lastSeen: ${updatedUser.lastSeen}, userId: ${clientInfo.userId}`);
-            // Optional: Broadcast update
-            wss.clients.forEach((client) => {
-              const recipientInfo = clients.get(client);
-              if (client.readyState === WebSocket.OPEN && recipientInfo) {
-                client.send(JSON.stringify({
-                  type: 'lastSeenUpdate',
-                  userId: clientInfo.userId,
-                  lastSeen: updatedUser.lastSeen,
-                }));
-              }
-            });
+            
+            // Broadcast offline status to all relevant clients
+            broadcastUserStatus(clientInfo.userId, false);
           } catch (err) {
             console.error('Error updating lastSeen:', err);
           }
@@ -268,7 +288,6 @@ wss.on('connection', (ws, req) => {
         console.log(`Client disconnected: ${clientInfo?.name || 'Unknown'}`);
       });
       
-
       ws.on('error', (error) => console.error('WebSocket error:', error));
     } catch (error) {
       console.error('WebSocket user verification error:', error);
@@ -276,6 +295,38 @@ wss.on('connection', (ws, req) => {
     }
   });
 });
+
+// Function to broadcast user status changes
+function broadcastUserStatus(userId, isOnline) {
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({
+        type: 'userStatus',
+        userId: userId,
+        isOnline: isOnline,
+        lastSeen: isOnline ? new Date() : new Date()
+      }));
+    }
+  });
+}
+
+// Periodically check for stale connections
+setInterval(() => {
+  const now = new Date();
+  wss.clients.forEach((ws) => {
+    if (ws.isAlive === false) {
+      const clientInfo = clients.get(ws);
+      if (clientInfo) {
+        activeUsers.delete(clientInfo.userId);
+        broadcastUserStatus(clientInfo.userId, false);
+      }
+      clients.delete(ws);
+      return ws.terminate();
+    }
+    ws.isAlive = false;
+    ws.ping(() => {});
+  });
+}, 30000); // Check every 30 seconds
 
 // Start Server
 const PORT = process.env.PORT || 3000;

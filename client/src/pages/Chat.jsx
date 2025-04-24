@@ -12,8 +12,9 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isConnected, setIsConnected] = useState(false);
+  const [isUserOnline, setIsUserOnline] = useState(false);
   const [chattingWith, setChattingWith] = useState('Loading...');
-  const [lastSeen, setLastSeen] = useState(null); // New state for last seen
+  const [lastSeen, setLastSeen] = useState(null);
   const [socket, setSocket] = useState(null);
   const messagesContainerRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -45,11 +46,11 @@ const Chat = () => {
           axios.get(`${API_URL}/messages/${productId}/${sellerId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get(`${API_URL}/user/last-seen/${sellerId}`, { // Fetch last seen
+          axios.get(`${API_URL}/user/last-seen/${sellerId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-        console.log('last seen response',lastSeenResponse.data);
+        
         if (sellerResponse.data && sellerResponse.data.name) {
           setChattingWith(sellerResponse.data.name);
         } else {
@@ -67,8 +68,10 @@ const Chat = () => {
           }))
         );
 
-        if (lastSeenResponse.data && lastSeenResponse.data.lastSeen) {
-          setLastSeen(new Date(lastSeenResponse.data.lastSeen)); // Store last seen timestamp
+        // Set online status and last seen from API response
+        if (lastSeenResponse.data) {
+          setLastSeen(new Date(lastSeenResponse.data.lastSeen));
+          setIsUserOnline(lastSeenResponse.data.isOnline);
         }
       } catch (error) {
         console.error('Error initializing chat:', error);
@@ -82,7 +85,7 @@ const Chat = () => {
 
     initializeChat();
 
-    // Fixed WebSocket URL logic
+    // WebSocket connection setup
     const wsURL = window.location.hostname === 'localhost'
       ? `ws://localhost:${import.meta.env.VITE_WS_PORT || 3000}`
       : `wss://akunff.onrender.com`;
@@ -97,6 +100,7 @@ const Chat = () => {
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      
       if (data.type === 'chat' && data.productId === productId) {
         setMessages((prev) => [
           ...prev,
@@ -110,6 +114,13 @@ const Chat = () => {
         ]);
       } else if (data.type === 'welcome') {
         console.log(data.message);
+      } else if (data.type === 'userStatus' && data.userId === sellerId) {
+        // Update user online status when receiving status updates
+        setIsUserOnline(data.isOnline);
+        if (data.lastSeen) {
+          setLastSeen(new Date(data.lastSeen));
+        }
+        console.log(`User ${sellerId} status updated: ${data.isOnline ? 'Online' : 'Offline'}`);
       } else if (data.error) {
         console.error('WebSocket error:', data.error);
         setIsConnected(false);
@@ -126,8 +137,26 @@ const Chat = () => {
       setIsConnected(false);
     };
 
-    return () => ws.close();
-  }, [sellerId, productId, user.id, token, navigate]);
+    // Set up a polling mechanism to check user's status every 30 seconds as a fallback
+    const statusInterval = setInterval(async () => {
+      try {
+        const response = await axios.get(`${API_URL}/user/last-seen/${sellerId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.data) {
+          setLastSeen(new Date(response.data.lastSeen));
+          setIsUserOnline(response.data.isOnline);
+        }
+      } catch (error) {
+        console.error('Error polling user status:', error);
+      }
+    }, 30000);
+
+    return () => {
+      ws.close();
+      clearInterval(statusInterval);
+    };
+  }, [sellerId, productId, user.id, token, navigate, API_URL]);
 
   useEffect(() => {
     if (messagesContainerRef.current) {
@@ -164,14 +193,24 @@ const Chat = () => {
   // Helper function to format last seen
   const formatLastSeen = (date) => {
     if (!date) return 'Last seen: Unknown';
+    
+    // If user is online, show "Online" instead of last seen time
+    if (isUserOnline) return 'Online';
+    
     const now = new Date();
     const diff = Math.floor((now - date) / 1000 / 60); // Difference in minutes
+    
     if (diff < 1) return 'Last seen: Just now';
     if (diff < 60) return `Last seen: ${diff} minute${diff > 1 ? 's' : ''} ago`;
+    
     const hours = Math.floor(diff / 60);
     if (hours < 24) return `Last seen: ${hours} hour${hours > 1 ? 's' : ''} ago`;
+    
     const days = Math.floor(hours / 24);
-    return `Last seen: ${days} day${days > 1 ? 's' : ''} ago`;
+    if (days < 7) return `Last seen: ${days} day${days > 1 ? 's' : ''} ago`;
+    
+    // For longer periods, show the actual date
+    return `Last seen: ${date.toLocaleDateString()}`;
   };
 
   return (
@@ -201,10 +240,12 @@ const Chat = () => {
               <div className="ml-3">
                 <h3 className="font-bold text-white">{chattingWith}</h3>
                 <div className="flex items-center">
-                  <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'} mr-2`}></div>
-                  <span className="text-xs text-gray-400">{isConnected ? 'Online' : 'Offline'}</span>
+                  <div className={`w-2 h-2 rounded-full ${isUserOnline ? 'bg-green-500' : 'bg-red-500'} mr-2`}></div>
+                  <span className="text-xs text-gray-400">{isUserOnline ? 'Online' : 'Offline'}</span>
                 </div>
-                <div className="text-xs text-gray-400">{formatLastSeen(lastSeen)}</div> {/* Display last seen */}
+                {!isUserOnline && lastSeen && (
+                  <div className="text-xs text-gray-400">{formatLastSeen(lastSeen)}</div>
+                )}
               </div>
             </div>
           </div>
