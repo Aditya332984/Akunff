@@ -118,6 +118,30 @@ app.get('/api/auth/user/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// NEW ROUTE: Update Last Seen API endpoint
+app.post('/api/user/update-last-seen', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { lastSeen: new Date() },
+      { new: true }
+    );
+    
+    // Broadcast online status to all connected clients
+    broadcastUserStatus(userId, true);
+    
+    res.json({ 
+      success: true, 
+      lastSeen: updatedUser.lastSeen,
+      message: 'Last seen updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating last seen:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Health Check
 app.get('/', (req, res) => res.send('API is running'));
 
@@ -145,6 +169,7 @@ app.get('/api/user/last-seen/:id', authMiddleware, async (req, res) => {
     
     const lastSeen = user.lastSeen || user.updatedAt || user.createdAt;
     const isOnline = clients.has(userId) || 
+                    activeUsers.has(userId) ||
                     (lastSeen && (new Date() - new Date(lastSeen)) < ONLINE_THRESHOLD_MS);
     
     console.log(`User ${userId} last seen: ${lastSeen}, online status: ${isOnline}`);
@@ -219,6 +244,18 @@ wss.on('connection', (ws, req) => {
           const parsedMessage = JSON.parse(message);
           const clientInfo = clients.get(ws);
 
+          // Handle heartbeat messages
+          if (parsedMessage.type === 'heartbeat') {
+            if (clientInfo && clientInfo.userId) {
+              // Update user's last seen time
+              await User.findByIdAndUpdate(clientInfo.userId, { lastSeen: new Date() });
+              
+              // Broadcast updated online status
+              broadcastUserStatus(clientInfo.userId, true);
+            }
+            return; // Skip the rest of the message handling
+          }
+
           if (!parsedMessage.message || !parsedMessage.recipient || !parsedMessage.timestamp) {
             ws.send(JSON.stringify({ error: 'Invalid message format' }));
             return;
@@ -232,6 +269,10 @@ wss.on('connection', (ws, req) => {
             timestamp: parsedMessage.timestamp,
           });
           await newMessage.save();
+
+          // Also update last seen when sending a message
+          await User.findByIdAndUpdate(clientInfo.userId, { lastSeen: new Date() });
+          broadcastUserStatus(clientInfo.userId, true);
 
           wss.clients.forEach((client) => {
             const recipientInfo = clients.get(client);
@@ -304,7 +345,7 @@ function broadcastUserStatus(userId, isOnline) {
         type: 'userStatus',
         userId: userId,
         isOnline: isOnline,
-        lastSeen: isOnline ? new Date() : new Date()
+        lastSeen: new Date()
       }));
     }
   });

@@ -152,9 +152,25 @@ const Chat = () => {
       }
     }, 30000);
 
+    // Add heartbeat to update the current user's last seen status
+    const heartbeatInterval = setInterval(() => {
+      if (ws && ws.readyState === 1) { // 1 = WebSocket.OPEN
+        ws.send(JSON.stringify({
+          type: 'heartbeat',
+          timestamp: new Date().toISOString()
+        }));
+      }
+      
+      // As a fallback, also update via API call
+      axios.post(`${API_URL}/user/update-last-seen`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).catch(err => console.error('Failed to update last seen:', err));
+    }, 60000); // Every 60 seconds
+
     return () => {
       ws.close();
       clearInterval(statusInterval);
+      clearInterval(heartbeatInterval);
     };
   }, [sellerId, productId, user.id, token, navigate, API_URL]);
 
@@ -184,6 +200,11 @@ const Chat = () => {
         },
       ]);
       setNewMessage('');
+      
+      // Also update last seen when sending a message
+      axios.post(`${API_URL}/user/update-last-seen`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).catch(err => console.error('Failed to update last seen when sending message:', err));
     } catch (error) {
       console.error('Failed to send message:', error);
       alert('Failed to send message. Please check your connection.');
