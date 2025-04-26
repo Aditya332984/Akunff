@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
   lastseen:{
     type: Date,
     default: Date.now,
-  }
+  },
+  lastChatOpened:Date,
 });
 
 module.exports = mongoose.model('User', userSchema);

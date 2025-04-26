@@ -50,7 +50,10 @@ const Chat = () => {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-        
+        if(lastSeenResponse.data){
+          setLastSeen(new Date(lastSeenResponse.data.lastSeen));
+          setIsUserOnline(lastSeenResponse.data.isOnline);
+        }
         if (sellerResponse.data && sellerResponse.data.name) {
           setChattingWith(sellerResponse.data.name);
         } else {
@@ -102,28 +105,30 @@ const Chat = () => {
       const data = JSON.parse(event.data);
       
       if (data.type === 'chat' && data.productId === productId) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: prev.length + 1,
-            sender: data.sender.name || 'Unknown',
-            text: data.message,
-            time: new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            isReceived: data.sender.userId !== user.id,
-          },
-        ]);
+      setMessages((prev) => [
+        ...prev,
+        {
+        id: prev.length + 1,
+        sender: data.sender.name || 'Unknown',
+        text: data.message,
+        time: new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isReceived: data.sender.userId !== user.id,
+        },
+      ]);
       } else if (data.type === 'welcome') {
-        console.log(data.message);
+      console.log(data.message);
       } else if (data.type === 'userStatus' && data.userId === sellerId) {
-        // Update user online status when receiving status updates
-        setIsUserOnline(data.isOnline);
-        if (data.lastSeen) {
-          setLastSeen(new Date(data.lastSeen));
-        }
-        console.log(`User ${sellerId} status updated: ${data.isOnline ? 'Online' : 'Offline'}`);
+      // Update user online status when receiving status updates
+      setIsUserOnline(data.isOnline);
+      if (data.lastSeen) {
+        setLastSeen(new Date(data.lastSeen)); // PARSE the date!
+      } else {
+        setLastSeen(null);
+      }
+      console.log(`User ${sellerId} status updated: ${data.isOnline ? 'Online' : 'Offline'}`);
       } else if (data.error) {
-        console.error('WebSocket error:', data.error);
-        setIsConnected(false);
+      console.error('WebSocket error:', data.error);
+      setIsConnected(false);
       }
     };
 

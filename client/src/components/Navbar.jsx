@@ -36,7 +36,7 @@ const Navbar = () => {
 
   const handleLoginClick = () => navigate('/login');
   const handleProductsClick = () => navigate('/products');
-  const handleChatsClick = () => navigate('/chats');
+  const handleChatsClick = () => {navigate('/chats'),window.location.reload(true);};
 
   const platforms = ['PC', 'PlayStation', 'Xbox', 'Nintendo', 'Mobile'];
 

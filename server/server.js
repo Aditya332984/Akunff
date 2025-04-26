@@ -129,7 +129,7 @@ app.post('/api/user/update-last-seen', authMiddleware, async (req, res) => {
     );
     
     // Broadcast online status to all connected clients
-    broadcastUserStatus(userId, true);
+    broadcastUserStatus(userId, true,updatedUser.lastSeen);
     
     res.json({ 
       success: true, 
@@ -141,6 +141,16 @@ app.post('/api/user/update-last-seen', authMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+app.get('/api/user/last-chat-opened/:id', authMiddleware, async (req, res) => {
+  try{
+    const user = await User.findById(req.params.id);
+    if(!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ lastChatOpened: user.lastChatOpened });
+  }catch(error){
+    res.status(500).json({ message: 'Server error' });
+  }
+})
 
 // Health Check
 app.get('/', (req, res) => res.send('API is running'));
@@ -251,7 +261,7 @@ wss.on('connection', (ws, req) => {
               await User.findByIdAndUpdate(clientInfo.userId, { lastSeen: new Date() });
               
               // Broadcast updated online status
-              broadcastUserStatus(clientInfo.userId, true);
+              broadcastUserStatus(clientInfo.userId, true,new Date());
             }
             return; // Skip the rest of the message handling
           }
@@ -312,13 +322,14 @@ wss.on('connection', (ws, req) => {
             const updatedUser = await User.findByIdAndUpdate(
               clientInfo.userId,
               { lastSeen: new Date() },
-              { new: true, runValidators: true }
+              { new: true, runValidators: true },
+              {lastChatOpened: new Date() }
             );
             
             console.log(`Updated lastSeen for user: ${clientInfo.name}, new lastSeen: ${updatedUser.lastSeen}, userId: ${clientInfo.userId}`);
             
             // Broadcast offline status to all relevant clients
-            broadcastUserStatus(clientInfo.userId, false);
+            broadcastUserStatus(clientInfo.userId, false,new Date());
           } catch (err) {
             console.error('Error updating lastSeen:', err);
           }
@@ -345,7 +356,7 @@ function broadcastUserStatus(userId, isOnline) {
         type: 'userStatus',
         userId: userId,
         isOnline: isOnline,
-        lastSeen: new Date()
+        lastSeen: lastSeen?new Date(lastSeen).toISOString:null,
       }));
     }
   });
