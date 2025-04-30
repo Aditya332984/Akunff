@@ -120,12 +120,13 @@ const Chat = () => {
       } else if (data.type === 'userStatus' && data.userId === sellerId) {
       // Update user online status when receiving status updates
       setIsUserOnline(data.isOnline);
+
       if (data.lastSeen) {
         setLastSeen(new Date(data.lastSeen)); // PARSE the date!
       } else {
         setLastSeen(null);
       }
-      console.log(`User ${sellerId} status updated: ${data.isOnline ? 'Online' : 'Offline'}`);
+      console.log(`User ${sellerId} status updated: ${data.isOnline ? 'Online' : 'Offline'}${data.lastSeen ? ', last seen: ' + new Date(data.lastSeen).toLocaleString() : ''}`);
       } else if (data.error) {
       console.error('WebSocket error:', data.error);
       setIsConnected(false);

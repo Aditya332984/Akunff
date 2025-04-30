@@ -321,15 +321,14 @@ wss.on('connection', (ws, req) => {
             // Update lastSeen in database
             const updatedUser = await User.findByIdAndUpdate(
               clientInfo.userId,
-              { lastSeen: new Date() },
+              { lastSeen: new Date(),lastChatOpened: new Date() },
               { new: true, runValidators: true },
-              {lastChatOpened: new Date() }
             );
             
             console.log(`Updated lastSeen for user: ${clientInfo.name}, new lastSeen: ${updatedUser.lastSeen}, userId: ${clientInfo.userId}`);
             
             // Broadcast offline status to all relevant clients
-            broadcastUserStatus(clientInfo.userId, false,new Date());
+            broadcastUserStatus(clientInfo.userId, false,updatedUser.lastSeen);
           } catch (err) {
             console.error('Error updating lastSeen:', err);
           }
@@ -349,14 +348,14 @@ wss.on('connection', (ws, req) => {
 });
 
 // Function to broadcast user status changes
-function broadcastUserStatus(userId, isOnline) {
+function broadcastUserStatus(userId, isOnline, lastSeen) {
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify({
         type: 'userStatus',
         userId: userId,
         isOnline: isOnline,
-        lastSeen: lastSeen?new Date(lastSeen).toISOString:null,
+        lastSeen: lastSeen?new Date(lastSeen).toISOString():null,
       }));
     }
   });
