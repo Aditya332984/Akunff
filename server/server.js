@@ -40,6 +40,8 @@ const allowedOrigins = [
   'https://akunff.com',
   'https://www.akunff.com',
   'http://localhost:5173',
+  'https://progameid.com',
+  'https://www.progameid.com',
 ];
 
 app.use((req, res, next) => {
